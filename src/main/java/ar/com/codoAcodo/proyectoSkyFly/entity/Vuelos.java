@@ -1,0 +1,35 @@
+package ar.com.codoAcodo.proyectoSkyFly.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.util.Date;
+import java.util.Set;
+
+@Entity
+@Table(name = "vuelos")
+@NoArgsConstructor
+@Getter
+@Setter
+public class Vuelos {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long vuelosId;
+
+    private String aerolinea;
+    private String numeroVuelo;
+    private String ciudadOrigen;
+    private String ciudadDestino;
+    private Date partida;
+    private Date arribo;
+    private Double precio;
+    private Boolean conexion;
+
+    @OneToOne(mappedBy = "vuelos")
+    private Reservas reservas;//Vuelo tiene como atributo una entidad de tipo Reservas, que va a estar relacionada mediante el mappedBy con una entidad que se llama Vuelos
+
+    @OneToMany(mappedBy = "vuelos", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private Set<Asientos> asientos;
+
+
+}
