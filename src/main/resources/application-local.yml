@@ -10,5 +10,7 @@ spring:
     defer-datasource-initialization: true
   sql:
     init:
-      data-locations: classpath:vuelos.sql
+      data-locations:
+      - classpath:vuelos.sql
+      - classpath:usuarios.sql
       mode: always

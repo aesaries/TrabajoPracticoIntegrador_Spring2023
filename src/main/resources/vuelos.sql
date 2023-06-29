@@ -1,4 +1,6 @@
---INSERT INTO `vuelos`
---(`vuelosId`, `aerolinea`, `numeroVuelo`, `ciudadOrigen`, `ciudadDestino`, `partida`, `arribo`, `precio`, `conexion`)
---VALUES
---    (1,"Avianca","Av180","Argentina","Brasil","10:00", "12:00","400,00", "si");
+INSERT INTO `vuelos`
+(`vuelos_Id`, `aerolinea`, `numero_Vuelo`, `ciudad_Origen`, `ciudad_Destino`,`partida`, `arribo`, `precio`, `conexion`)
+VALUES
+    (1,'Avianca','Av180','Buenos Aires','Rio de Janeiro','2023-06-29T18:00:00','2023-06-30T09:00:00','400.00','0'),
+    (2,'Aerolineas Argentinas','Ar200','Buenos Aires','Cancun','2023-06-28T18:00:00','2023-06-29T21:30:00','500.00','0'),
+    (3,'Panam','Pan150','Buenos Aires','Madrid','2023-06-27T18:00:00','2023-06-29T21:30:00','900.00','1');

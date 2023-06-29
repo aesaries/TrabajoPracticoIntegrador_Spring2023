@@ -18,7 +18,6 @@ public class Usuarios {
     private String dni;
     private Date fechaNac;
     private String email;
-    private String telefono;
     private String rol;
 
     @OneToMany(mappedBy = "usuarios", cascade = CascadeType.ALL, fetch = FetchType.EAGER)//el cascade se encarga de definir que operaciones realizadas sobre un objeto voy a propagar sobre un objeto relacionado, en este caso items.

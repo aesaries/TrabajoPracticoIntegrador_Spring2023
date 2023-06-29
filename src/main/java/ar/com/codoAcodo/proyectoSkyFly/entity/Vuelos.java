@@ -3,7 +3,7 @@ package ar.com.codoAcodo.proyectoSkyFly.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.Set;
 
 @Entity
@@ -20,8 +20,8 @@ public class Vuelos {
     private String numeroVuelo;
     private String ciudadOrigen;
     private String ciudadDestino;
-    private Date partida;
-    private Date arribo;
+    private LocalDateTime partida;
+    private LocalDateTime arribo;
     private Double precio;
     private Boolean conexion;
 
@@ -30,6 +30,5 @@ public class Vuelos {
 
     @OneToMany(mappedBy = "vuelos", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<Asientos> asientos;
-
 
 }
