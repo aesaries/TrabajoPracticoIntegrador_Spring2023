@@ -1,2 +1,5 @@
-package ar.com.codoAcodo.proyectoSkyFly.enums;public enum DescrriocionAsiento {
+package ar.com.codoAcodo.proyectoSkyFly.enums;
+
+public enum DescripcionAsiento {
+    VENTANILLA, PASILLO
 }
