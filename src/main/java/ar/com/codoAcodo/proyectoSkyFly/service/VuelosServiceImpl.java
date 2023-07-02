@@ -1,22 +1,44 @@
 package ar.com.codoAcodo.proyectoSkyFly.service;
 
+import ar.com.codoAcodo.proyectoSkyFly.dto.request.ReservaDto;
 import ar.com.codoAcodo.proyectoSkyFly.dto.request.VuelosDto;
 import ar.com.codoAcodo.proyectoSkyFly.entity.Vuelos;
+import ar.com.codoAcodo.proyectoSkyFly.repository.IAsientosRepository;
+import ar.com.codoAcodo.proyectoSkyFly.repository.IReservasRepository;
+import ar.com.codoAcodo.proyectoSkyFly.repository.IUsuariosRepository;
 import ar.com.codoAcodo.proyectoSkyFly.repository.IVuelosRepository;
+import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.rmi.server.LogStream.log;
+
+@Slf4j
 @Service
 public class VuelosServiceImpl implements IVuelosService {
+
 
     IVuelosRepository vuelosRepository;
 
     public VuelosServiceImpl(IVuelosRepository vuelosRepository) {
         this.vuelosRepository = vuelosRepository;
     }
+
+    @Autowired
+    IReservasRepository reservasRepository;
+    @Autowired
+    IUsuariosRepository usuariosRepository;
+    @Autowired
+    IAsientosRepository asientosRepository;
+
 
     @Override
     public List<VuelosDto> buscarVuelos() {
@@ -31,5 +53,19 @@ public class VuelosServiceImpl implements IVuelosService {
                 .forEach(c-> vuelosDto.add(mapper.map(c,VuelosDto.class)));
 
         return vuelosDto;
+    }
+
+
+    @Override
+    public void realizarReserva(ReservaDto reservaDto) {
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        LocalDate fechaSalida = LocalDate.parse(reservaDto.getFechaSalida(),formatter);
+
+
+
+       log.info(reservaDto.getNombre());
+       log.info(fechaSalida.toString());
+
     }
 }
