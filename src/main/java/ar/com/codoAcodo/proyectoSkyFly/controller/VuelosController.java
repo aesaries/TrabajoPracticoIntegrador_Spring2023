@@ -1,6 +1,8 @@
 package ar.com.codoAcodo.proyectoSkyFly.controller;
 
 import ar.com.codoAcodo.proyectoSkyFly.dto.request.ReservaDto;
+import ar.com.codoAcodo.proyectoSkyFly.exception.AsientoNotFoundException;
+import ar.com.codoAcodo.proyectoSkyFly.exception.UsuarioNotFoundException;
 import ar.com.codoAcodo.proyectoSkyFly.service.VuelosServiceImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,8 +44,13 @@ public class VuelosController {
     public ResponseEntity<String> handleCustomException(RuntimeException ex) {
         // Obtener el mensaje de la excepción
         String mensaje = ex.getMessage();
-
-        // Devolver una respuesta con el mensaje de la excepción
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(mensaje);
+        if(ex instanceof UsuarioNotFoundException){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(mensaje);
+        } else if (ex instanceof AsientoNotFoundException) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(mensaje);
+        } else {
+            // Devolver una respuesta con el mensaje de la excepción
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(mensaje);
+        }
     }
 }
