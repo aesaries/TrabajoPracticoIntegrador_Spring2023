@@ -2,7 +2,14 @@ package ar.com.codoAcodo.proyectoSkyFly.service;
 
 import ar.com.codoAcodo.proyectoSkyFly.dto.request.ReservaDto;
 import ar.com.codoAcodo.proyectoSkyFly.dto.request.VuelosDto;
+import ar.com.codoAcodo.proyectoSkyFly.entity.Asientos;
+import ar.com.codoAcodo.proyectoSkyFly.entity.Reservas;
+import ar.com.codoAcodo.proyectoSkyFly.entity.Usuarios;
 import ar.com.codoAcodo.proyectoSkyFly.entity.Vuelos;
+import ar.com.codoAcodo.proyectoSkyFly.enums.EstadoAsiento;
+import ar.com.codoAcodo.proyectoSkyFly.exception.AsientoNotFoundException;
+import ar.com.codoAcodo.proyectoSkyFly.exception.UsuarioNotFoundException;
+import ar.com.codoAcodo.proyectoSkyFly.exception.VueloNotFoundException;
 import ar.com.codoAcodo.proyectoSkyFly.repository.IAsientosRepository;
 import ar.com.codoAcodo.proyectoSkyFly.repository.IReservasRepository;
 import ar.com.codoAcodo.proyectoSkyFly.repository.IUsuariosRepository;
@@ -18,6 +25,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static java.rmi.server.LogStream.log;
 
@@ -58,14 +66,64 @@ public class VuelosServiceImpl implements IVuelosService {
 
     @Override
     public void realizarReserva(ReservaDto reservaDto) {
+        Asientos asiento = null;
 
+        Usuarios usuario = usuariosRepository.findById(reservaDto.getUsuarioId())
+                .orElseThrow(() -> new UsuarioNotFoundException("Usuario no Existe !!"));
+
+        Vuelos vuelo = vuelosRepository.findById(reservaDto.getVueloId())
+                .orElseThrow(() -> new VueloNotFoundException("Vuelo No Encontrado"));
+
+        List<Asientos> listaAsientos = asientosRepository.findAll();
+
+        Optional<Asientos> oAsiento = listaAsientos.stream()
+                .filter(a-> a.getNumeroDeAsiento()==reservaDto.getNumeroDeAsiento())
+                .filter(a-> a.getVuelos().equals(vuelo))
+                .findFirst();
+
+        if (oAsiento.isPresent()){
+            asiento = oAsiento.get();
+        }else{
+            asiento = oAsiento.orElseThrow(()-> new AsientoNotFoundException("Asiento no encontrado"));
+        }
+
+        log.info(asiento.toString());
+        if(asiento.getEstadoAsiento().equals(EstadoAsiento.LIBRE)){
+            Reservas reserva = new Reservas();
+            reserva.setFormaDePago(reservaDto.getFormaDePago());
+            reserva.setCategoria(asiento.getTipoDeAsiento().name());
+            reserva.setCostoTotal(vuelo.getPrecio());
+            reserva.setVuelos(vuelo);
+            reserva.setUsuarios(usuario);
+
+            reservasRepository.save(reserva);
+
+            //cambio el estado del asiento que de libre a vendido
+            asiento.setEstadoAsiento(EstadoAsiento.VENDIDO);
+            asientosRepository.save(asiento);
+
+
+
+        }else{
+            throw new RuntimeException("El Asiento ya se encuentra vendido");
+        }
+
+
+
+
+
+
+
+
+        /*
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         LocalDate fechaSalida = LocalDate.parse(reservaDto.getFechaSalida(),formatter);
 
-
-
        log.info(reservaDto.getNombre());
        log.info(fechaSalida.toString());
+*/
+
+
 
     }
 }
