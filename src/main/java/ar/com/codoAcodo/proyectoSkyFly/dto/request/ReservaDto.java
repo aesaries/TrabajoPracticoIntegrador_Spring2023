@@ -7,15 +7,10 @@ import lombok.Data;
 import java.time.LocalDateTime;
 @Data
 public class ReservaDto {
-    private String nombre;
-    private String apellido;
-    private String email;
-    private String rol;
-    private String numeroVuelo;
-    private String ciudadOrigen;
-    private String ciudadDestino;
-    private String fechaSalida;
-    private Long numAsiento;
+    private Long usuarioId;
+    private Long vueloId;
+    private int numeroDeAsiento;
 
+    private String formaDePago;
 
 }
