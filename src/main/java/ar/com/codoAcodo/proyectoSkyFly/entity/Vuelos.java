@@ -6,11 +6,12 @@ import lombok.*;
 import java.time.LocalDateTime;
 import java.util.Set;
 
-@Entity
-@Table(name = "vuelos")
 @NoArgsConstructor
 @Getter
 @Setter
+@Entity
+@Table(name = "vuelos")
+
 public class Vuelos {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,5 +31,6 @@ public class Vuelos {
 
     @OneToMany(mappedBy = "vuelos", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<Asientos> asientos;
+
 
 }
