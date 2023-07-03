@@ -29,9 +29,21 @@ public class VuelosController {
             vuelosService.realizarReserva(reservaDto);
             return ResponseEntity.ok("Reserva realizada con éxito");
 
-        } catch (Exception e) {
-
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al realizar la reserva");
+        } catch (RuntimeException ex) {
+            // Capturar la excepción personalizada lanzada desde el servicio
+            return handleCustomException(ex);
         }
+    }
+
+
+
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<String> handleCustomException(RuntimeException ex) {
+        // Obtener el mensaje de la excepción
+        String mensaje = ex.getMessage();
+
+        // Devolver una respuesta con el mensaje de la excepción
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(mensaje);
     }
 }
