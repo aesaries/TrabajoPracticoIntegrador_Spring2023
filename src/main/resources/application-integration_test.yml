@@ -12,6 +12,7 @@ spring:
       data-locations:
         - classpath:vuelos.sql
         - classpath:usuarios.sql
+        - classpath:asientos.sql
       mode: always
   h2:
     console:

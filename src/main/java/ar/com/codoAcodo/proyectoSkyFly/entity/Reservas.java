@@ -1,14 +1,14 @@
 package ar.com.codoAcodo.proyectoSkyFly.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
-@Entity
+@Entity @Data
 @Table(name = "reservas")
 public class Reservas {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-
     private Long reservasId;
     private String formaDePago;
     private String categoria;

@@ -1,20 +1,28 @@
 package ar.com.codoAcodo.proyectoSkyFly.entity;
 
+import ar.com.codoAcodo.proyectoSkyFly.enums.AsientoDescripcion;
+import ar.com.codoAcodo.proyectoSkyFly.enums.AsientoEstado;
+import ar.com.codoAcodo.proyectoSkyFly.enums.AsientoTipo;
 import jakarta.persistence.*;
+import lombok.Data;
 
-@Entity
+
+@Entity @Data
 @Table(name = "asientos")
 public class Asientos {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long asientosId;
 
-    private Boolean vendido;
-    private int tipoDeAsiento;
-    private String descripcion;
+    @Column(name = "numero_asiento")
+    private int numeroDeAsiento;
 
-
-
+    @Enumerated(value = EnumType.ORDINAL)
+    private AsientoEstado estadoAsiento;
+    @Enumerated(value = EnumType.ORDINAL)
+    private AsientoTipo tipoDeAsiento;
+    @Enumerated(value = EnumType.ORDINAL)
+    private AsientoDescripcion descripcion;
     @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "vuelos_id", nullable = false)
     private Vuelos vuelos;
