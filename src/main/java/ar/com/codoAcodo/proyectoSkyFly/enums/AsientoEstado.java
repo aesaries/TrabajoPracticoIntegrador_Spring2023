@@ -1,5 +1,5 @@
 package ar.com.codoAcodo.proyectoSkyFly.enums;
 
-public enum EstadoAsiento {
+public enum AsientoEstado {
     LIBRE, VENDIDO
 }

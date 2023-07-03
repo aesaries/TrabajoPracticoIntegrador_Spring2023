@@ -1,5 +1,5 @@
 package ar.com.codoAcodo.proyectoSkyFly.enums;
 
-public enum TipoAsiento {
+public enum AsientoTipo {
     ECONOMICO, TURISTA, PRIMERA
 }
