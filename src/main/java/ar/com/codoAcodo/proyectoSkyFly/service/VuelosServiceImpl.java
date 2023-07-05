@@ -72,7 +72,6 @@ public class VuelosServiceImpl implements IVuelosService {
 
         vuelo = checkExisteVuelo(reservaDto.getVueloId());
 
-
         boolean asientoLibre = existeAsientoYEstaLIbre(reservaDto.getNumeroDeAsiento());
 
         if(asientoLibre){
