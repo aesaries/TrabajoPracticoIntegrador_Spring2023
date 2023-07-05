@@ -15,6 +15,8 @@ public class RespReservaDto {
     private ReservaDto datos_de_reserva;
     private String fechaReserva;
 
+    private Long reservaId;
+
     public RespReservaDto(String mensaje) {
         this.mensaje = mensaje;
     }
