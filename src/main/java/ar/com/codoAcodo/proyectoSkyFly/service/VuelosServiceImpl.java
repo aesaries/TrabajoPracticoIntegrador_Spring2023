@@ -104,23 +104,36 @@ public class VuelosServiceImpl implements IVuelosService {
         boolean asientoLibre = existeAsientoYEstaLIbre(reservaDto.getNumeroDeAsiento());
 
         if(asientoLibre){
-            Reservas reserva = new Reservas();
-            reserva.setFormaDePago(reservaDto.getFormaDePago());
-            reserva.setCategoria(asiento.getTipoDeAsiento().name());
-            reserva.setCostoTotal(vuelo.getPrecio());
-            reserva.setVuelos(vuelo);
-            reserva.setUsuarios(usuario);
+            guardaReserva(reservaDto);
 
-            reservasRepository.save(reserva);
+
 
             //cambio el estado del asiento que de libre a vendido
-            asiento.setEstadoAsiento(AsientoEstado.VENDIDO);
-            asientosRepository.save(asiento);
+            cambiaEstadoDelAsientoaVendido();
+
             RespReservaDto respuesta = new RespReservaDto("la reserva se realizo con exito",reservaDto  );
             return respuesta;
+
         }else{
+
             throw new AsientoNotFoundException("el asiento ya se encuentra vendido");
         }
+    }
+
+    private void guardaReserva(ReservaDto reservaDto) {
+        Reservas reserva = new Reservas();
+        reserva.setFormaDePago(reservaDto.getFormaDePago());
+        reserva.setCategoria(asiento.getTipoDeAsiento().name());
+        reserva.setCostoTotal(vuelo.getPrecio());
+        reserva.setVuelos(vuelo);
+        reserva.setUsuarios(usuario);
+
+        reservasRepository.save(reserva);
+    }
+
+    private void cambiaEstadoDelAsientoaVendido() {
+        asiento.setEstadoAsiento(AsientoEstado.VENDIDO);
+        asientosRepository.save(asiento);
     }
 
     private Usuarios checkExisteYRol(Long id){
