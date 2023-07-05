@@ -8,4 +8,5 @@ import lombok.*;
 public class RespVuelosDto {
     private VuelosDto vuelos;
     private String mensaje;
+
 }
