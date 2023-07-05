@@ -3,24 +3,20 @@ package ar.com.codoAcodo.proyectoSkyFly.service;
 import ar.com.codoAcodo.proyectoSkyFly.dto.request.ReservaDto;
 import ar.com.codoAcodo.proyectoSkyFly.dto.request.VuelosDto;
 import ar.com.codoAcodo.proyectoSkyFly.dto.response.RespReservaDto;
-import ar.com.codoAcodo.proyectoSkyFly.entity.Asientos;
-import ar.com.codoAcodo.proyectoSkyFly.entity.Reservas;
-import ar.com.codoAcodo.proyectoSkyFly.entity.Usuarios;
-import ar.com.codoAcodo.proyectoSkyFly.entity.Vuelos;
+import ar.com.codoAcodo.proyectoSkyFly.entity.*;
 import ar.com.codoAcodo.proyectoSkyFly.enums.AsientoEstado;
+import ar.com.codoAcodo.proyectoSkyFly.enums.PagoEstado;
 import ar.com.codoAcodo.proyectoSkyFly.enums.UsuarioRol;
 import ar.com.codoAcodo.proyectoSkyFly.exception.AsientoNotFoundException;
 import ar.com.codoAcodo.proyectoSkyFly.exception.UsuarioNotFoundException;
 import ar.com.codoAcodo.proyectoSkyFly.exception.VueloNotFoundException;
-import ar.com.codoAcodo.proyectoSkyFly.repository.IAsientosRepository;
-import ar.com.codoAcodo.proyectoSkyFly.repository.IReservasRepository;
-import ar.com.codoAcodo.proyectoSkyFly.repository.IUsuariosRepository;
-import ar.com.codoAcodo.proyectoSkyFly.repository.IVuelosRepository;
+import ar.com.codoAcodo.proyectoSkyFly.repository.*;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -42,6 +38,8 @@ public class VuelosServiceImpl implements IVuelosService {
     IUsuariosRepository usuariosRepository;
     @Autowired
     IAsientosRepository asientosRepository;
+    @Autowired
+    IPagosRepository pagosRepository;
 
     Asientos asiento;
     Usuarios usuario;
@@ -64,35 +62,6 @@ public class VuelosServiceImpl implements IVuelosService {
         return vuelosDto;
     }
 
-//    @Override
-//    public void realizarReserva(ReservaDto reservaDto) {
-//
-//
-//        usuario = checkExisteYRol(reservaDto.getUsuarioId());
-//
-//        vuelo = checkExisteVuelo(reservaDto.getVueloId());
-//
-//
-//        boolean asientoLibre = existeAsientoYEstaLIbre(reservaDto.getNumeroDeAsiento());
-//
-//        if(asientoLibre){
-//            Reservas reserva = new Reservas();
-//            reserva.setFormaDePago(reservaDto.getFormaDePago());
-//            reserva.setCategoria(asiento.getTipoDeAsiento().name());
-//            reserva.setCostoTotal(vuelo.getPrecio());
-//            reserva.setVuelos(vuelo);
-//            reserva.setUsuarios(usuario);
-//
-//            reservasRepository.save(reserva);
-//
-//            //cambio el estado del asiento que de libre a vendido
-//            asiento.setEstadoAsiento(AsientoEstado.VENDIDO);
-//            asientosRepository.save(asiento);
-//
-//        }else{
-//            throw new RuntimeException("El Asiento ya se encuentra vendido");
-//        }
-//    }
 
     @Override
     public RespReservaDto realizarReserva(ReservaDto reservaDto) {
@@ -104,14 +73,17 @@ public class VuelosServiceImpl implements IVuelosService {
         boolean asientoLibre = existeAsientoYEstaLIbre(reservaDto.getNumeroDeAsiento());
 
         if(asientoLibre){
-            guardaReserva(reservaDto);
 
-
+            Reservas reserva = guardaReserva(reservaDto);
 
             //cambio el estado del asiento que de libre a vendido
             cambiaEstadoDelAsientoaVendido();
 
-            RespReservaDto respuesta = new RespReservaDto("la reserva se realizo con exito",reservaDto  );
+
+            //Se genera un registro en PAGOS con el estado "Pendiente" d
+            generaPagoPendiente(reserva);
+
+            RespReservaDto respuesta = new RespReservaDto("la reserva se realizo con exito",reservaDto,LocalDateTime.now().toString());
             return respuesta;
 
         }else{
@@ -120,15 +92,28 @@ public class VuelosServiceImpl implements IVuelosService {
         }
     }
 
-    private void guardaReserva(ReservaDto reservaDto) {
+
+    private void generaPagoPendiente(Reservas reserva) {
+        Pagos pago = new Pagos();
+        pago.setEstadoDePago(PagoEstado.PENDIENTE);
+        pago.setReservas(reserva);
+        pagosRepository.save(pago);
+
+    }
+
+    private Reservas guardaReserva(ReservaDto reservaDto) {
         Reservas reserva = new Reservas();
         reserva.setFormaDePago(reservaDto.getFormaDePago());
         reserva.setCategoria(asiento.getTipoDeAsiento().name());
         reserva.setCostoTotal(vuelo.getPrecio());
         reserva.setVuelos(vuelo);
         reserva.setUsuarios(usuario);
+        reserva.setFechaReserva(LocalDateTime.now());
 
         reservasRepository.save(reserva);
+
+        return reserva;
+
     }
 
     private void cambiaEstadoDelAsientoaVendido() {
