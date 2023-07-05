@@ -2,18 +2,18 @@ package ar.com.codoAcodo.proyectoSkyFly.entity;
 
 import ar.com.codoAcodo.proyectoSkyFly.enums.PagoEstado;
 import jakarta.persistence.*;
+import lombok.Data;
+import lombok.Setter;
 
 import java.util.Date;
 
-@Entity
+@Entity @Data
 @Table(name = "pagos")
 public class Pagos {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long pagosId;
 
-    private int id_reserva;
-    private Double precioTotal;
     private Date fecha;
     @Enumerated(value = EnumType.STRING)
     private PagoEstado estadoDePago;
