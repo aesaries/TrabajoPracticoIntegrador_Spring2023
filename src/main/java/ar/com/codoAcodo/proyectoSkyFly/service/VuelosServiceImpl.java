@@ -1,10 +1,13 @@
 package ar.com.codoAcodo.proyectoSkyFly.service;
 
+import ar.com.codoAcodo.proyectoSkyFly.dto.request.PagosDto;
 import ar.com.codoAcodo.proyectoSkyFly.dto.request.ReservaDto;
 import ar.com.codoAcodo.proyectoSkyFly.dto.request.VuelosDto;
+import ar.com.codoAcodo.proyectoSkyFly.dto.response.RespPagosDto;
 import ar.com.codoAcodo.proyectoSkyFly.dto.response.RespReservaDto;
 import ar.com.codoAcodo.proyectoSkyFly.entity.*;
 import ar.com.codoAcodo.proyectoSkyFly.enums.AsientoEstado;
+import ar.com.codoAcodo.proyectoSkyFly.enums.FormaDePago;
 import ar.com.codoAcodo.proyectoSkyFly.enums.PagoEstado;
 import ar.com.codoAcodo.proyectoSkyFly.enums.UsuarioRol;
 import ar.com.codoAcodo.proyectoSkyFly.exception.AsientoNotFoundException;
@@ -16,10 +19,13 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.management.ObjectName;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import static ar.com.codoAcodo.proyectoSkyFly.enums.FormaDePago.*;
 
 @Slf4j
 @Service
@@ -44,6 +50,8 @@ public class VuelosServiceImpl implements IVuelosService {
     Asientos asiento;
     Usuarios usuario;
     Vuelos vuelo;
+
+    Reservas reserva;
 
 
 
@@ -81,7 +89,7 @@ public class VuelosServiceImpl implements IVuelosService {
 
 
             //Se genera un registro en PAGOS con el estado "Pendiente" d
-            generaPagoPendiente(reserva);
+//            generaPagoPendiente(reserva);
 
             RespReservaDto respuesta = new RespReservaDto("la reserva se realizo con exito",
                     reservaDto,LocalDateTime.now().toString(),
@@ -90,7 +98,6 @@ public class VuelosServiceImpl implements IVuelosService {
             return respuesta;
 
         }else{
-
             throw new AsientoNotFoundException("el asiento ya se encuentra vendido");
         }
     }
@@ -101,7 +108,6 @@ public class VuelosServiceImpl implements IVuelosService {
         pago.setEstadoDePago(PagoEstado.PENDIENTE);
         pago.setReservas(reserva);
         pagosRepository.save(pago);
-
     }
 
     private Reservas guardaReserva(ReservaDto reservaDto) {
@@ -116,7 +122,6 @@ public class VuelosServiceImpl implements IVuelosService {
         reservasRepository.save(reserva);
 
         return reserva;
-
     }
 
     private void cambiaEstadoDelAsientoaVendido() {
@@ -159,4 +164,27 @@ public class VuelosServiceImpl implements IVuelosService {
         //log.info(asiento.toString());
         return asiento.getEstadoAsiento().equals(AsientoEstado.LIBRE);
     }
+
+    private Reservas checkExisteReserva(Long id){
+        return reservasRepository.findById(id)
+                .orElseThrow(() -> new VueloNotFoundException("Reserva No Encontrado"));
+    }
+
+    @Override
+    public RespPagosDto pagarReserva(PagosDto pagos) {
+        reserva = checkExisteReserva(pagos.getReservaId());
+
+        if (pagos.getFormaDePago().equals(TARJETA)) {
+            System.out.printf("Ud pago con tarjeta");
+        } else if (pagos.getFormaDePago().equals(TRANSFERENCIA)) {
+            System.out.printf("Ud pago por transferencia");
+        } else if (pagos.getFormaDePago().equals(PAGO_ONLINE)) {
+            System.out.printf("Ud pago de manera Online");
+        } else {
+            System.out.printf("no se pudo realizar");
+        }
+        RespPagosDto respuesta = new RespPagosDto("el pago fue exitoso");
+        return respuesta;
+    }
+
 }

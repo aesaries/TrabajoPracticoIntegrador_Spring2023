@@ -12,7 +12,6 @@ public class Reservas {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long reservasId;
-    private String formaDePago;
     private String categoria;
     @Column(name = "fecha_reserva", columnDefinition = "TIMESTAMP")
     private LocalDateTime fechaReserva;
