@@ -2,6 +2,7 @@ package ar.com.codoAcodo.proyectoSkyFly.service;
 
 import ar.com.codoAcodo.proyectoSkyFly.dto.request.ReservaDto;
 import ar.com.codoAcodo.proyectoSkyFly.dto.request.VuelosDto;
+import ar.com.codoAcodo.proyectoSkyFly.dto.response.RespReservaDto;
 import ar.com.codoAcodo.proyectoSkyFly.entity.Asientos;
 import ar.com.codoAcodo.proyectoSkyFly.entity.Reservas;
 import ar.com.codoAcodo.proyectoSkyFly.entity.Usuarios;
@@ -53,7 +54,7 @@ public class VuelosServiceImpl implements IVuelosService {
 
         ModelMapper mapper = new ModelMapper();//creamos un ModelMapper(debemos tener la dependencia en el pom). La clase ModelMapper nos permite transformar un objeto relacional en un objeto java
 
-        List<Vuelos> vuelosEnt = vuelosRepository.findAll();//creamos una lista de cart,que es una clase del tipo entidad, por ende es una lista de entidades. la vamos a crear por medio del findAll. buscamos en el repositorio mediante el findAll todos los carritos entidades
+        List<Vuelos> vuelosEnt = vuelosRepository.findAll();//creamos una lista de vuelos,que es una clase del tipo entidad, por ende es una lista de entidades. la vamos a crear por medio del findAll. buscamos en el repositorio mediante el findAll todos los vuelos entidades
 
         List<VuelosDto> vuelosDto = new ArrayList<>();
 
@@ -63,10 +64,38 @@ public class VuelosServiceImpl implements IVuelosService {
         return vuelosDto;
     }
 
+//    @Override
+//    public void realizarReserva(ReservaDto reservaDto) {
+//
+//
+//        usuario = checkExisteYRol(reservaDto.getUsuarioId());
+//
+//        vuelo = checkExisteVuelo(reservaDto.getVueloId());
+//
+//
+//        boolean asientoLibre = existeAsientoYEstaLIbre(reservaDto.getNumeroDeAsiento());
+//
+//        if(asientoLibre){
+//            Reservas reserva = new Reservas();
+//            reserva.setFormaDePago(reservaDto.getFormaDePago());
+//            reserva.setCategoria(asiento.getTipoDeAsiento().name());
+//            reserva.setCostoTotal(vuelo.getPrecio());
+//            reserva.setVuelos(vuelo);
+//            reserva.setUsuarios(usuario);
+//
+//            reservasRepository.save(reserva);
+//
+//            //cambio el estado del asiento que de libre a vendido
+//            asiento.setEstadoAsiento(AsientoEstado.VENDIDO);
+//            asientosRepository.save(asiento);
+//
+//        }else{
+//            throw new RuntimeException("El Asiento ya se encuentra vendido");
+//        }
+//    }
 
     @Override
-    public void realizarReserva(ReservaDto reservaDto) {
-
+    public RespReservaDto realizarReserva(ReservaDto reservaDto) {
 
         usuario = checkExisteYRol(reservaDto.getUsuarioId());
 
@@ -87,14 +116,11 @@ public class VuelosServiceImpl implements IVuelosService {
             //cambio el estado del asiento que de libre a vendido
             asiento.setEstadoAsiento(AsientoEstado.VENDIDO);
             asientosRepository.save(asiento);
-
-
-
+            RespReservaDto respuesta = new RespReservaDto("la reserva se realizo con exito",reservaDto  );
+            return respuesta;
         }else{
-            throw new RuntimeException("El Asiento ya se encuentra vendido");
+            throw new AsientoNotFoundException("el asiento ya se encuentra vendido");
         }
-
-
     }
 
     private Usuarios checkExisteYRol(Long id){
@@ -105,7 +131,6 @@ public class VuelosServiceImpl implements IVuelosService {
 
     if (!esCliente){throw new RuntimeException("No es un rol Valido");}
 
-
     return usu;
         //falta verificar el rol
     }
@@ -113,7 +138,6 @@ public class VuelosServiceImpl implements IVuelosService {
     private Vuelos checkExisteVuelo(Long id){
         return vuelosRepository.findById(id)
                 .orElseThrow(() -> new VueloNotFoundException("Vuelo No Encontrado"));
-
     }
 
     private boolean existeAsientoYEstaLIbre(int numeroAsiento){
