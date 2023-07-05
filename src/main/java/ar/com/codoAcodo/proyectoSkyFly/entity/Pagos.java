@@ -1,5 +1,6 @@
 package ar.com.codoAcodo.proyectoSkyFly.entity;
 
+import ar.com.codoAcodo.proyectoSkyFly.enums.PagoEstado;
 import jakarta.persistence.*;
 
 import java.util.Date;
@@ -14,7 +15,8 @@ public class Pagos {
     private int id_reserva;
     private Double precioTotal;
     private Date fecha;
-    private Boolean estadoDePago;
+    @Enumerated(value = EnumType.STRING)
+    private PagoEstado estadoDePago;
 
     @OneToOne(cascade = {CascadeType.PERSIST,CascadeType.MERGE})
     @JoinColumn(name = "reservas_id", referencedColumnName = "reservasId")//JoinColumn me genera la FK en la entidad pagos
