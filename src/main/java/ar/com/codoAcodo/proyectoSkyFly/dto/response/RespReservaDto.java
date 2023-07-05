@@ -13,6 +13,7 @@ public class RespReservaDto {
 
     private String mensaje;
     private ReservaDto datos_de_reserva;
+    private String fechaReserva;
 
     public RespReservaDto(String mensaje) {
         this.mensaje = mensaje;
