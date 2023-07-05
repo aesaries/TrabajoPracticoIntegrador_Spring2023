@@ -13,6 +13,11 @@ public class RespReservaDto {
 
     private String mensaje;
     private ReservaDto datos_de_reserva;
+    private String fechaReserva;
+
+    private Long reservaId;
+    private Double montoAPagar;
+
 
     public RespReservaDto(String mensaje) {
         this.mensaje = mensaje;

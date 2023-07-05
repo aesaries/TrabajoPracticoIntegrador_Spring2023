@@ -3,6 +3,8 @@ package ar.com.codoAcodo.proyectoSkyFly.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Entity @Data
 @Table(name = "reservas")
 public class Reservas {
@@ -12,6 +14,8 @@ public class Reservas {
     private Long reservasId;
     private String formaDePago;
     private String categoria;
+    @Column(name = "fecha_reserva", columnDefinition = "TIMESTAMP")
+    private LocalDateTime fechaReserva;
     private Double costoTotal;
 
     @ManyToOne(cascade = CascadeType.PERSIST)
