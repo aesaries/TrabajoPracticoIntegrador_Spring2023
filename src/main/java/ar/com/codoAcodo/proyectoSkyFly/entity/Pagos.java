@@ -2,12 +2,15 @@ package ar.com.codoAcodo.proyectoSkyFly.entity;
 
 import ar.com.codoAcodo.proyectoSkyFly.enums.PagoEstado;
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.Setter;
+import lombok.*;
+import org.hibernate.Hibernate;
 
 import java.util.Date;
+import java.util.Objects;
 
-@Entity @Data
+@Entity
+@Setter
+@RequiredArgsConstructor
 @Table(name = "pagos")
 public class Pagos {
     @Id
