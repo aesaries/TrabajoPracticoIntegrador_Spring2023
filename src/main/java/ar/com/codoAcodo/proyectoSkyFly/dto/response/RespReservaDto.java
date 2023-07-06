@@ -20,6 +20,7 @@ public class RespReservaDto {
 
 
     public RespReservaDto(String mensaje) {
+
         this.mensaje = mensaje;
     }
 }
