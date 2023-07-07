@@ -15,7 +15,7 @@ public class Pagos {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long pagosId;
 
-    private Date fecha;
+    //private Date fecha;
     @Enumerated(value = EnumType.STRING)
     private PagoEstado estadoDePago;
 

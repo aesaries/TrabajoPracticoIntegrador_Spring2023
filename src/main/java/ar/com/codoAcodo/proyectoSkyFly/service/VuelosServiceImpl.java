@@ -7,10 +7,10 @@ import ar.com.codoAcodo.proyectoSkyFly.dto.response.RespPagosDto;
 import ar.com.codoAcodo.proyectoSkyFly.dto.response.RespReservaDto;
 import ar.com.codoAcodo.proyectoSkyFly.entity.*;
 import ar.com.codoAcodo.proyectoSkyFly.enums.AsientoEstado;
-import ar.com.codoAcodo.proyectoSkyFly.enums.FormaDePago;
 import ar.com.codoAcodo.proyectoSkyFly.enums.PagoEstado;
 import ar.com.codoAcodo.proyectoSkyFly.enums.UsuarioRol;
 import ar.com.codoAcodo.proyectoSkyFly.exception.AsientoNotFoundException;
+import ar.com.codoAcodo.proyectoSkyFly.exception.PagoNotFoundException;
 import ar.com.codoAcodo.proyectoSkyFly.exception.UsuarioNotFoundException;
 import ar.com.codoAcodo.proyectoSkyFly.exception.VueloNotFoundException;
 import ar.com.codoAcodo.proyectoSkyFly.repository.*;
@@ -19,13 +19,10 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.management.ObjectName;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
-import static ar.com.codoAcodo.proyectoSkyFly.enums.FormaDePago.*;
 
 @Slf4j
 @Service
@@ -46,6 +43,7 @@ public class VuelosServiceImpl implements IVuelosService {
     IAsientosRepository asientosRepository;
     @Autowired
     IPagosRepository pagosRepository;
+    ModelMapper mapper = new ModelMapper();//creamos un ModelMapper(debemos tener la dependencia en el pom).La clase ModelMapper nos permite transformar un objeto relacional en un objeto java
 
     Asientos asiento;
     Usuarios usuario;
@@ -58,13 +56,13 @@ public class VuelosServiceImpl implements IVuelosService {
     @Override
     public List<VuelosDto> buscarVuelos() {
 
-        ModelMapper mapper = new ModelMapper();//creamos un ModelMapper(debemos tener la dependencia en el pom). La clase ModelMapper nos permite transformar un objeto relacional en un objeto java
+
 
         List<Vuelos> vuelosEnt = vuelosRepository.findAll();//creamos una lista de vuelos,que es una clase del tipo entidad, por ende es una lista de entidades. la vamos a crear por medio del findAll. buscamos en el repositorio mediante el findAll todos los vuelos entidades
 
         List<VuelosDto> vuelosDto = new ArrayList<>();
 
-        vuelosEnt.stream()
+        vuelosEnt
                 .forEach(c-> vuelosDto.add(mapper.map(c,VuelosDto.class)));
 
         return vuelosDto;
@@ -82,20 +80,20 @@ public class VuelosServiceImpl implements IVuelosService {
 
         if(asientoLibre){
 
-            Reservas reserva = guardaReserva(reservaDto);
+            Reservas reserva = guardaReserva();
 
             //cambio el estado del asiento que de libre a vendido
             cambiaEstadoDelAsientoaVendido();
 
 
             //Se genera un registro en PAGOS con el estado "Pendiente" d
-//            generaPagoPendiente(reserva);
+            generaPagoPendiente(reserva);
 
-            RespReservaDto respuesta = new RespReservaDto("la reserva se realizo con exito",
+            return new RespReservaDto("la reserva se realizo con exito",
                     reservaDto,LocalDateTime.now().toString(),
                     reserva.getReservasId(),
                     reserva.getCostoTotal());
-            return respuesta;
+
 
         }else{
             throw new AsientoNotFoundException("el asiento ya se encuentra vendido");
@@ -110,7 +108,7 @@ public class VuelosServiceImpl implements IVuelosService {
         pagosRepository.save(pago);
     }
 
-    private Reservas guardaReserva(ReservaDto reservaDto) {
+    private Reservas guardaReserva() {
         Reservas reserva = new Reservas();
 
         reserva.setCategoria(asiento.getTipoDeAsiento().name());
@@ -155,12 +153,9 @@ public class VuelosServiceImpl implements IVuelosService {
                 .filter(a-> a.getVuelos().equals(vuelo))
                 .findFirst();
 
-        if (oAsiento.isPresent()){
-            asiento = oAsiento.get();
-
-        }else{
-            asiento = oAsiento.orElseThrow(()-> new AsientoNotFoundException("Asiento no encontrado"));
-        }
+        asiento = oAsiento.orElseGet(() ->
+                oAsiento.orElseThrow(() ->
+                        new AsientoNotFoundException("Asiento no encontrado")));
         //log.info(asiento.toString());
         return asiento.getEstadoAsiento().equals(AsientoEstado.LIBRE);
     }
@@ -171,20 +166,38 @@ public class VuelosServiceImpl implements IVuelosService {
     }
 
     @Override
-    public RespPagosDto pagarReserva(PagosDto pagos) {
-        reserva = checkExisteReserva(pagos.getReservaId());
+    public RespPagosDto pagarReserva(PagosDto pagosDto) {
+        RespPagosDto respPagosDto = new RespPagosDto();
+        reserva = checkExisteReserva(pagosDto.getReservaId());
 
-        if (pagos.getFormaDePago().equals(TARJETA)) {
-            System.out.printf("Ud pago con tarjeta");
-        } else if (pagos.getFormaDePago().equals(TRANSFERENCIA)) {
-            System.out.printf("Ud pago por transferencia");
-        } else if (pagos.getFormaDePago().equals(PAGO_ONLINE)) {
-            System.out.printf("Ud pago de manera Online");
-        } else {
-            System.out.printf("no se pudo realizar");
+
+
+        Pagos pagoAConfirmar = pagosRepository.findById
+               (reserva.getPagos().getPagosId())
+               .orElseThrow(()->new PagoNotFoundException("Pago No encontrado"));
+
+        if (pagoAConfirmar.getEstadoDePago().equals(PagoEstado.PENDIENTE)){
+            respPagosDto.setMensaje("Su pago con " + pagosDto.getFormaDePago() + "ha sido aceptada");
+            respPagosDto.setAereolinea(pagoAConfirmar.getReservas().getVuelos().getAerolinea());
+            respPagosDto.setNumeroVuelo(pagoAConfirmar.getReservas().getVuelos().getNumeroVuelo());
+            respPagosDto.setCiudadOrigen(pagoAConfirmar.getReservas().getVuelos().getCiudadOrigen());
+            respPagosDto.setCiudadDestino(pagoAConfirmar.getReservas().getVuelos().getCiudadDestino());
+            respPagosDto.setPagos(pagosDto);
+            respPagosDto.setTotalAPagar(pagoAConfirmar.getReservas().getVuelos().getPrecio());
+
+            pagoAConfirmar.setEstadoDePago(PagoEstado.CONFIRMADO);
+            pagosRepository.save(pagoAConfirmar);
+
         }
-        RespPagosDto respuesta = new RespPagosDto("el pago fue exitoso");
-        return respuesta;
+        else{
+
+            throw new PagoNotFoundException("Ya esta Pagado !!! no insista");
+        }
+
+
+
+        return mapper.map(respPagosDto, RespPagosDto.class);
+
     }
 
 }

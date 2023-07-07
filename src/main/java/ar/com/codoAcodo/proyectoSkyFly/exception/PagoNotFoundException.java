@@ -1,7 +1,7 @@
 package ar.com.codoAcodo.proyectoSkyFly.exception;
 
-public class PagoNoFoundException extends RuntimeException{
-    public PagoNoFoundException (String msg){
+public class PagoNotFoundException extends RuntimeException{
+    public PagoNotFoundException(String msg){
         super(msg);
     }
 }
