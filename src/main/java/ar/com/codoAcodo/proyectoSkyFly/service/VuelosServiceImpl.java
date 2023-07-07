@@ -1,13 +1,16 @@
 package ar.com.codoAcodo.proyectoSkyFly.service;
 
+import ar.com.codoAcodo.proyectoSkyFly.dto.request.PagosDto;
 import ar.com.codoAcodo.proyectoSkyFly.dto.request.ReservaDto;
 import ar.com.codoAcodo.proyectoSkyFly.dto.request.VuelosDto;
+import ar.com.codoAcodo.proyectoSkyFly.dto.response.RespPagosDto;
 import ar.com.codoAcodo.proyectoSkyFly.dto.response.RespReservaDto;
 import ar.com.codoAcodo.proyectoSkyFly.entity.*;
 import ar.com.codoAcodo.proyectoSkyFly.enums.AsientoEstado;
 import ar.com.codoAcodo.proyectoSkyFly.enums.PagoEstado;
 import ar.com.codoAcodo.proyectoSkyFly.enums.UsuarioRol;
 import ar.com.codoAcodo.proyectoSkyFly.exception.AsientoNotFoundException;
+import ar.com.codoAcodo.proyectoSkyFly.exception.PagoNotFoundException;
 import ar.com.codoAcodo.proyectoSkyFly.exception.UsuarioNotFoundException;
 import ar.com.codoAcodo.proyectoSkyFly.exception.VueloNotFoundException;
 import ar.com.codoAcodo.proyectoSkyFly.repository.*;
@@ -40,23 +43,26 @@ public class VuelosServiceImpl implements IVuelosService {
     IAsientosRepository asientosRepository;
     @Autowired
     IPagosRepository pagosRepository;
+    ModelMapper mapper = new ModelMapper();//creamos un ModelMapper(debemos tener la dependencia en el pom).La clase ModelMapper nos permite transformar un objeto relacional en un objeto java
 
     Asientos asiento;
     Usuarios usuario;
     Vuelos vuelo;
+
+    Reservas reserva;
 
 
 
     @Override
     public List<VuelosDto> buscarVuelos() {
 
-        ModelMapper mapper = new ModelMapper();//creamos un ModelMapper(debemos tener la dependencia en el pom). La clase ModelMapper nos permite transformar un objeto relacional en un objeto java
+
 
         List<Vuelos> vuelosEnt = vuelosRepository.findAll();//creamos una lista de vuelos,que es una clase del tipo entidad, por ende es una lista de entidades. la vamos a crear por medio del findAll. buscamos en el repositorio mediante el findAll todos los vuelos entidades
 
         List<VuelosDto> vuelosDto = new ArrayList<>();
 
-        vuelosEnt.stream()
+        vuelosEnt
                 .forEach(c-> vuelosDto.add(mapper.map(c,VuelosDto.class)));
 
         return vuelosDto;
@@ -74,7 +80,7 @@ public class VuelosServiceImpl implements IVuelosService {
 
         if(asientoLibre){
 
-            Reservas reserva = guardaReserva(reservaDto);
+            Reservas reserva = guardaReserva();
 
             //cambio el estado del asiento que de libre a vendido
             cambiaEstadoDelAsientoaVendido();
@@ -83,14 +89,13 @@ public class VuelosServiceImpl implements IVuelosService {
             //Se genera un registro en PAGOS con el estado "Pendiente" d
             generaPagoPendiente(reserva);
 
-            RespReservaDto respuesta = new RespReservaDto("la reserva se realizo con exito",
+            return new RespReservaDto("la reserva se realizo con exito",
                     reservaDto,LocalDateTime.now().toString(),
                     reserva.getReservasId(),
                     reserva.getCostoTotal());
-            return respuesta;
+
 
         }else{
-
             throw new AsientoNotFoundException("el asiento ya se encuentra vendido");
         }
     }
@@ -101,10 +106,9 @@ public class VuelosServiceImpl implements IVuelosService {
         pago.setEstadoDePago(PagoEstado.PENDIENTE);
         pago.setReservas(reserva);
         pagosRepository.save(pago);
-
     }
 
-    private Reservas guardaReserva(ReservaDto reservaDto) {
+    private Reservas guardaReserva() {
         Reservas reserva = new Reservas();
 
         reserva.setCategoria(asiento.getTipoDeAsiento().name());
@@ -116,7 +120,6 @@ public class VuelosServiceImpl implements IVuelosService {
         reservasRepository.save(reserva);
 
         return reserva;
-
     }
 
     private void cambiaEstadoDelAsientoaVendido() {
@@ -150,13 +153,51 @@ public class VuelosServiceImpl implements IVuelosService {
                 .filter(a-> a.getVuelos().equals(vuelo))
                 .findFirst();
 
-        if (oAsiento.isPresent()){
-            asiento = oAsiento.get();
-
-        }else{
-            asiento = oAsiento.orElseThrow(()-> new AsientoNotFoundException("Asiento no encontrado"));
-        }
+        asiento = oAsiento.orElseGet(() ->
+                oAsiento.orElseThrow(() ->
+                        new AsientoNotFoundException("Asiento no encontrado")));
         //log.info(asiento.toString());
         return asiento.getEstadoAsiento().equals(AsientoEstado.LIBRE);
     }
+
+    private Reservas checkExisteReserva(Long id){
+        return reservasRepository.findById(id)
+                .orElseThrow(() -> new VueloNotFoundException("Reserva No Encontrado"));
+    }
+
+    @Override
+    public RespPagosDto pagarReserva(PagosDto pagosDto) {
+        RespPagosDto respPagosDto = new RespPagosDto();
+        reserva = checkExisteReserva(pagosDto.getReservaId());
+
+
+
+        Pagos pagoAConfirmar = pagosRepository.findById
+               (reserva.getPagos().getPagosId())
+               .orElseThrow(()->new PagoNotFoundException("Pago No encontrado"));
+
+        if (pagoAConfirmar.getEstadoDePago().equals(PagoEstado.PENDIENTE)){
+            respPagosDto.setMensaje("Su pago con " + pagosDto.getFormaDePago() + "ha sido aceptada");
+            respPagosDto.setAereolinea(pagoAConfirmar.getReservas().getVuelos().getAerolinea());
+            respPagosDto.setNumeroVuelo(pagoAConfirmar.getReservas().getVuelos().getNumeroVuelo());
+            respPagosDto.setCiudadOrigen(pagoAConfirmar.getReservas().getVuelos().getCiudadOrigen());
+            respPagosDto.setCiudadDestino(pagoAConfirmar.getReservas().getVuelos().getCiudadDestino());
+            respPagosDto.setPagos(pagosDto);
+            respPagosDto.setTotalAPagar(pagoAConfirmar.getReservas().getVuelos().getPrecio());
+
+            pagoAConfirmar.setEstadoDePago(PagoEstado.CONFIRMADO);
+            pagosRepository.save(pagoAConfirmar);
+
+        }
+        else{
+
+            throw new PagoNotFoundException("Ya esta Pagado !!! no insista");
+        }
+
+
+
+        return mapper.map(respPagosDto, RespPagosDto.class);
+
+    }
+
 }

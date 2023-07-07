@@ -5,9 +5,12 @@ import ar.com.codoAcodo.proyectoSkyFly.enums.AsientoEstado;
 import ar.com.codoAcodo.proyectoSkyFly.enums.AsientoTipo;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-
-@Entity @Data
+@Getter
+@Setter
+@Entity
 @Table(name = "asientos")
 public class Asientos {
     @Id

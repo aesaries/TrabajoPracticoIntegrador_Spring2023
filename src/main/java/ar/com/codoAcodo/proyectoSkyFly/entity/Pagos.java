@@ -2,22 +2,20 @@ package ar.com.codoAcodo.proyectoSkyFly.entity;
 
 import ar.com.codoAcodo.proyectoSkyFly.enums.PagoEstado;
 import jakarta.persistence.*;
-import lombok.*;
-import org.hibernate.Hibernate;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Date;
-import java.util.Objects;
-
+@Getter @Setter
 @Entity
-@Setter
-@RequiredArgsConstructor
 @Table(name = "pagos")
 public class Pagos {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long pagosId;
 
-    private Date fecha;
+    //private Date fecha;
     @Enumerated(value = EnumType.STRING)
     private PagoEstado estadoDePago;
 
