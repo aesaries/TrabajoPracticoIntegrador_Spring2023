@@ -13,10 +13,15 @@ public class ExceptionController {
         // Obtener el mensaje de la excepción
         String mensaje = ex.getMessage();
         if(ex instanceof UsuarioNotFoundException){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(mensaje);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(mensaje);
+
         } else if (ex instanceof AsientoNotFoundException) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(mensaje);
-        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(mensaje);
+
+        }else if(ex instanceof PagoNotFoundException){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(mensaje);
+
+        }else {
             // Devolver una respuesta con el mensaje de la excepción
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(mensaje);
         }

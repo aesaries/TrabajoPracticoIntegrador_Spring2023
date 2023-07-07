@@ -2,10 +2,14 @@ package ar.com.codoAcodo.proyectoSkyFly.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-@Entity @Data
+@Setter
+@Getter
+@Entity
 @Table(name = "reservas")
 public class Reservas {
 

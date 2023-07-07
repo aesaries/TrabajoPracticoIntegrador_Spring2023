@@ -15,5 +15,5 @@ public interface IVuelosService {
     RespReservaDto realizarReserva(ReservaDto reservaDto);
 
 
-    RespPagosDto pagarReserva(PagosDto pagos);
+    RespPagosDto pagarReserva(PagosDto pagosDto);
 }
