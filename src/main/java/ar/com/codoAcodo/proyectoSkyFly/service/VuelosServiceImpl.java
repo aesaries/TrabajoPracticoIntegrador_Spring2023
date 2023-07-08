@@ -105,38 +105,13 @@ public class VuelosServiceImpl implements IVuelosService {
 
     @Override
     public RespPagosDto pagarReserva(PagosDto pagosDto) {
-        RespPagosDto respPagosDto = new RespPagosDto();
-        reserva = checkExisteReserva(pagosDto.getReservaId());
-
-
-
-        Pagos pagoAConfirmar = pagosRepository.findById
-                        (reserva.getPagos().getPagosId())
-                .orElseThrow(()->new PagoNotFoundException("Pago No encontrado"));
-
-        if (pagoAConfirmar.getEstadoDePago().equals(PagoEstado.PENDIENTE)){
-            respPagosDto.setMensaje("Su pago con " + pagosDto.getFormaDePago() + "ha sido aceptada");
-            respPagosDto.setAereolinea(pagoAConfirmar.getReservas().getVuelos().getAerolinea());
-            respPagosDto.setNumeroVuelo(pagoAConfirmar.getReservas().getVuelos().getNumeroVuelo());
-            respPagosDto.setCiudadOrigen(pagoAConfirmar.getReservas().getVuelos().getCiudadOrigen());
-            respPagosDto.setCiudadDestino(pagoAConfirmar.getReservas().getVuelos().getCiudadDestino());
-            respPagosDto.setPagos(pagosDto);
-            respPagosDto.setTotalAPagar(pagoAConfirmar.getReservas().getVuelos().getPrecio());
-
-            pagoAConfirmar.setEstadoDePago(PagoEstado.CONFIRMADO);
-            pagosRepository.save(pagoAConfirmar);
-
-        }
-        else{
-
-            throw new PagoNotFoundException("Ya esta Pagado !!! no insista");
-        }
-
+        RespPagosDto respPagosDto = confeccionDeRespPagoDto(pagosDto);
 
 
         return mapper.map(respPagosDto, RespPagosDto.class);
 
     }
+
 
 
     ////////// Metodos de Apoyo al Service /////////////////////
@@ -260,6 +235,33 @@ public class VuelosServiceImpl implements IVuelosService {
                 .orElseThrow(() -> new VueloNotFoundException("Reserva No Encontrado"));
     }
 
+    private RespPagosDto confeccionDeRespPagoDto(PagosDto pagosDto) {
+        RespPagosDto respPagosDto = new RespPagosDto();
 
+        reserva = checkExisteReserva(pagosDto.getReservaId());
+
+        Pagos pagoAConfirmar = pagosRepository.findById
+                        (reserva.getPagos().getPagosId())
+                .orElseThrow(()->new PagoNotFoundException("Pago No encontrado"));
+
+        if (pagoAConfirmar.getEstadoDePago().equals(PagoEstado.PENDIENTE)){
+            respPagosDto.setMensaje("Su pago con " + pagosDto.getFormaDePago() + "ha sido aceptada");
+            respPagosDto.setAereolinea(pagoAConfirmar.getReservas().getVuelos().getAerolinea());
+            respPagosDto.setNumeroVuelo(pagoAConfirmar.getReservas().getVuelos().getNumeroVuelo());
+            respPagosDto.setCiudadOrigen(pagoAConfirmar.getReservas().getVuelos().getCiudadOrigen());
+            respPagosDto.setCiudadDestino(pagoAConfirmar.getReservas().getVuelos().getCiudadDestino());
+            respPagosDto.setPagos(pagosDto);
+            respPagosDto.setTotalAPagar(pagoAConfirmar.getReservas().getCostoTotal());
+
+            pagoAConfirmar.setEstadoDePago(PagoEstado.CONFIRMADO);
+            pagosRepository.save(pagoAConfirmar);
+
+        }
+        else{
+
+            throw new PagoNotFoundException("Ya esta Pagado !!! no insista");
+        }
+        return respPagosDto;
+    }
 
 }
