@@ -46,7 +46,7 @@ public class VuelosServiceImpl implements IVuelosService {
     IAsientosRepository asientosRepository;
     @Autowired
     IPagosRepository pagosRepository;
-    //creamos un ModelMapper(debemos tener la dependencia en el pom).La clase ModelMapper nos permite transformar un objeto relacional en un objeto java
+
 
     Asientos asiento;
     Usuarios usuario;
@@ -55,7 +55,7 @@ public class VuelosServiceImpl implements IVuelosService {
     Reservas reserva;
 
 
-    ModelMapper mapper = new ModelMapper();
+    ModelMapper mapper = new ModelMapper();//creamos un ModelMapper(debemos tener la dependencia en el pom).La clase ModelMapper nos permite transformar un objeto relacional en un objeto java
 
     @Override
     public List<VuelosDto> buscarVuelos() {
