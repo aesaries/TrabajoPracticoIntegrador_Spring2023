@@ -19,8 +19,4 @@ public class RespReservaDto {
     private Double montoAPagar;
 
 
-    public RespReservaDto(String mensaje) {
-
-        this.mensaje = mensaje;
-    }
 }

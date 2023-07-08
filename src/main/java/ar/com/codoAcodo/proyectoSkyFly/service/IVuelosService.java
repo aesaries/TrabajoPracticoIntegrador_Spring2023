@@ -1,10 +1,13 @@
 package ar.com.codoAcodo.proyectoSkyFly.service;
 
+import ar.com.codoAcodo.proyectoSkyFly.dto.request.AsientosDto;
 import ar.com.codoAcodo.proyectoSkyFly.dto.request.PagosDto;
 import ar.com.codoAcodo.proyectoSkyFly.dto.request.ReservaDto;
 import ar.com.codoAcodo.proyectoSkyFly.dto.request.VuelosDto;
 import ar.com.codoAcodo.proyectoSkyFly.dto.response.RespPagosDto;
 import ar.com.codoAcodo.proyectoSkyFly.dto.response.RespReservaDto;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -16,4 +19,7 @@ public interface IVuelosService {
 
 
     RespPagosDto pagarReserva(PagosDto pagosDto);
+
+
+    List<AsientosDto> verAsientos();
 }

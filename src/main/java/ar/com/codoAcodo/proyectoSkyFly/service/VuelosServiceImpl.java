@@ -1,5 +1,6 @@
 package ar.com.codoAcodo.proyectoSkyFly.service;
 
+import ar.com.codoAcodo.proyectoSkyFly.dto.request.AsientosDto;
 import ar.com.codoAcodo.proyectoSkyFly.dto.request.PagosDto;
 import ar.com.codoAcodo.proyectoSkyFly.dto.request.ReservaDto;
 import ar.com.codoAcodo.proyectoSkyFly.dto.request.VuelosDto;
@@ -18,6 +19,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -43,7 +46,7 @@ public class VuelosServiceImpl implements IVuelosService {
     IAsientosRepository asientosRepository;
     @Autowired
     IPagosRepository pagosRepository;
-    ModelMapper mapper = new ModelMapper();//creamos un ModelMapper(debemos tener la dependencia en el pom).La clase ModelMapper nos permite transformar un objeto relacional en un objeto java
+    //creamos un ModelMapper(debemos tener la dependencia en el pom).La clase ModelMapper nos permite transformar un objeto relacional en un objeto java
 
     Asientos asiento;
     Usuarios usuario;
@@ -52,18 +55,16 @@ public class VuelosServiceImpl implements IVuelosService {
     Reservas reserva;
 
 
+    ModelMapper mapper = new ModelMapper();
 
     @Override
     public List<VuelosDto> buscarVuelos() {
-
-
 
         List<Vuelos> vuelosEnt = vuelosRepository.findAll();//creamos una lista de vuelos,que es una clase del tipo entidad, por ende es una lista de entidades. la vamos a crear por medio del findAll. buscamos en el repositorio mediante el findAll todos los vuelos entidades
 
         List<VuelosDto> vuelosDto = new ArrayList<>();
 
-        vuelosEnt
-                .forEach(c-> vuelosDto.add(mapper.map(c,VuelosDto.class)));
+        vuelosEnt.forEach(c-> vuelosDto.add(mapper.map(c,VuelosDto.class)));
 
         return vuelosDto;
     }
@@ -93,8 +94,6 @@ public class VuelosServiceImpl implements IVuelosService {
                     reservaDto,LocalDateTime.now().toString(),
                     reserva.getReservasId(),
                     reserva.getCostoTotal());
-
-
         }else{
             throw new AsientoNotFoundException("el asiento ya se encuentra vendido");
         }
@@ -170,8 +169,6 @@ public class VuelosServiceImpl implements IVuelosService {
         RespPagosDto respPagosDto = new RespPagosDto();
         reserva = checkExisteReserva(pagosDto.getReservaId());
 
-
-
         Pagos pagoAConfirmar = pagosRepository.findById
                (reserva.getPagos().getPagosId())
                .orElseThrow(()->new PagoNotFoundException("Pago No encontrado"));
@@ -182,6 +179,7 @@ public class VuelosServiceImpl implements IVuelosService {
             respPagosDto.setNumeroVuelo(pagoAConfirmar.getReservas().getVuelos().getNumeroVuelo());
             respPagosDto.setCiudadOrigen(pagoAConfirmar.getReservas().getVuelos().getCiudadOrigen());
             respPagosDto.setCiudadDestino(pagoAConfirmar.getReservas().getVuelos().getCiudadDestino());
+
             respPagosDto.setPagos(pagosDto);
             respPagosDto.setTotalAPagar(pagoAConfirmar.getReservas().getVuelos().getPrecio());
 
@@ -193,11 +191,44 @@ public class VuelosServiceImpl implements IVuelosService {
 
             throw new PagoNotFoundException("Ya esta Pagado !!! no insista");
         }
-
-
-
         return mapper.map(respPagosDto, RespPagosDto.class);
 
     }
+
+    @Override
+    public List<AsientosDto> verAsientos() {
+        List<Asientos> asientosEnt = asientosRepository.findAll(); // Obtener asientos del vuelo específico
+
+        List<AsientosDto> asientosDto = new ArrayList<>();
+
+        asientosEnt.forEach(c -> asientosDto.add(mapper.map(c, AsientosDto.class)));
+
+        return asientosDto;
+    }
+
+//    @Override
+//    public List<AsientosDto> verAsientosDisp(@RequestParam Long vuelosId) {
+//        Optional<Asientos> asientosEnt = asientosRepository.findById(vuelosId); // Obtener asientos del vuelo específico
+//
+//        List<AsientosDto> asientosDto = new ArrayList<>();
+//
+//        asientosEnt.forEach(c -> asientosDto.add(mapper.map(c, AsientosDto.class)));
+//
+//        return asientosDto;
+//    }
+
+//    @Override
+//    public List<AsientosDto> verAsientosDisp(@RequestParam Long vuelosId) {
+//        Optional<Asientos> asientosEntOptional = asientosRepository.findById(vuelosId); // Obtener asientos del vuelo específico
+//
+//        List<AsientosDto> asientosDto = new ArrayList<>();
+//
+//        asientosEntOptional.ifPresent(asientosEnt -> {
+//            AsientosDto asientosDto = mapper.map(asientosEnt, AsientosDto.class);
+//            asientosDto.add(asientosDto);
+//        });
+//
+//        return asientosDto;
+//    }
 
 }

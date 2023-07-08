@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(path = "/vuelos")
+@RequestMapping(path ="/vuelos")
 public class VuelosController {
 
     VuelosServiceImpl vuelosService;
@@ -35,9 +35,14 @@ public class VuelosController {
     }
 
     @PostMapping(value = "/pagarReserva")
-    public ResponseEntity<?> pagarReserva(@RequestBody PagosDto pagosDto){
+    public ResponseEntity<RespPagosDto> pagarReserva(@RequestBody PagosDto pagosDto){
 
         return new ResponseEntity<>(vuelosService.pagarReserva(pagosDto), HttpStatus.OK);
+    }
+
+    @GetMapping("/verAsientos")
+    public ResponseEntity<?> verAsientos(){
+        return new ResponseEntity<>(vuelosService.verAsientos(), HttpStatus.OK);
     }
 
 
