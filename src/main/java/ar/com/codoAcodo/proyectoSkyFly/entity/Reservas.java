@@ -16,6 +16,7 @@ public class Reservas {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long reservasId;
+
     private String categoria;
     @Column(name = "fecha_reserva", columnDefinition = "TIMESTAMP")
     private LocalDateTime fechaReserva;
@@ -24,7 +25,7 @@ public class Reservas {
     @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "usuarios_id", nullable = false)//JoinColumn me genera la FK en la entidad reservas
     private Usuarios usuarios;
-    @OneToOne(cascade = {CascadeType.PERSIST,CascadeType.MERGE})
+    @ManyToOne(cascade = {CascadeType.PERSIST,CascadeType.MERGE})
     @JoinColumn(name = "vuelos_id", referencedColumnName = "vuelosId")//JoinColumn me genera la FK en la entidad reservas
     private Vuelos vuelos;
 

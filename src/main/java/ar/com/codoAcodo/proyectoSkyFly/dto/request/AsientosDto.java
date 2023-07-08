@@ -6,7 +6,8 @@ import ar.com.codoAcodo.proyectoSkyFly.enums.AsientoTipo;
 import lombok.*;
 
 
-@Data
+@Getter
+@Setter
 public class AsientosDto {
 
     private Long vuelosId;

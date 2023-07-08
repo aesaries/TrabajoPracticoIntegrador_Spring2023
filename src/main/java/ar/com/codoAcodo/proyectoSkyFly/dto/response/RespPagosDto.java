@@ -1,14 +1,12 @@
 package ar.com.codoAcodo.proyectoSkyFly.dto.response;
 
-
 import ar.com.codoAcodo.proyectoSkyFly.dto.request.PagosDto;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
-@Setter @Getter
-@AllArgsConstructor @NoArgsConstructor
+@Setter
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
 public class RespPagosDto{
     private PagosDto pagos;
 

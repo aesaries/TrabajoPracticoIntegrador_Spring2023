@@ -2,13 +2,17 @@ package ar.com.codoAcodo.proyectoSkyFly.entity;
 
 import ar.com.codoAcodo.proyectoSkyFly.enums.UsuarioRol;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 import java.util.Set;
 
-
-@Entity @Getter
+@AllArgsConstructor
+@NoArgsConstructor
+@Entity
+@Getter
 @Table(name = "usuarios")
 public class Usuarios {
     @Id
