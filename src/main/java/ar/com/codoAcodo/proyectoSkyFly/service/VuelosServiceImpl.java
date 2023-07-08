@@ -45,7 +45,7 @@ public class VuelosServiceImpl implements IVuelosService {
     IPagosRepository pagosRepository;
     ModelMapper mapper = new ModelMapper();//creamos un ModelMapper(debemos tener la dependencia en el pom).La clase ModelMapper nos permite transformar un objeto relacional en un objeto java
 
-    Asientos asiento;
+
     Usuarios usuario;
     Vuelos vuelo;
 
@@ -76,94 +76,32 @@ public class VuelosServiceImpl implements IVuelosService {
 
         vuelo = checkExisteVuelo(reservaDto.getVueloId());
 
-        boolean asientoLibre = existeAsientoYEstaLIbre(reservaDto.getNumeroDeAsiento());
+        checkListaVacia(reservaDto.getListaAsientos());
 
-        if(asientoLibre){
+        checkNumerosDeAsientos(reservaDto.getListaAsientos());
 
-            Reservas reserva = guardaReserva();
+        List<Asientos> asientos = checkExistenAsientosEnBBDD(reservaDto.getListaAsientos(),vuelo);
 
-            //cambio el estado del asiento que de libre a vendido
-            cambiaEstadoDelAsientoaVendido();
+        checkDisponibilidadAsientos(asientos);
 
+        int cantidadDeAsientos = asientos.size();
+        Reservas reserva = guardaReserva(cantidadDeAsientos, vuelo, usuario);
 
-            //Se genera un registro en PAGOS con el estado "Pendiente" d
-            generaPagoPendiente(reserva);
+        //cambio el estado del asiento que de libre a vendido
+        cambiaEstadoDelAsientoaVendido(asientos);
 
-            return new RespReservaDto("la reserva se realizo con exito",
+        //Se genera un registro en PAGOS con el estado "Pendiente" d
+        generaPagoPendiente(reserva);
+
+         return new RespReservaDto("la reserva se realizo con exito",
                     reservaDto,LocalDateTime.now().toString(),
                     reserva.getReservasId(),
                     reserva.getCostoTotal());
 
-
-        }else{
-            throw new AsientoNotFoundException("el asiento ya se encuentra vendido");
-        }
     }
 
 
-    private void generaPagoPendiente(Reservas reserva) {
-        Pagos pago = new Pagos();
-        pago.setEstadoDePago(PagoEstado.PENDIENTE);
-        pago.setReservas(reserva);
-        pagosRepository.save(pago);
-    }
 
-    private Reservas guardaReserva() {
-        Reservas reserva = new Reservas();
-
-        reserva.setCategoria(asiento.getTipoDeAsiento().name());
-        reserva.setCostoTotal(vuelo.getPrecio());
-        reserva.setVuelos(vuelo);
-        reserva.setUsuarios(usuario);
-        reserva.setFechaReserva(LocalDateTime.now());
-
-        reservasRepository.save(reserva);
-
-        return reserva;
-    }
-
-    private void cambiaEstadoDelAsientoaVendido() {
-        asiento.setEstadoAsiento(AsientoEstado.VENDIDO);
-        asientosRepository.save(asiento);
-    }
-
-    private Usuarios checkExisteYRol(Long id){
-    Usuarios usu = usuariosRepository.findById(id)
-            .orElseThrow(() -> new UsuarioNotFoundException("Usuario no Existe !!"));
-
-    boolean esCliente = usu.getRol().equals(UsuarioRol.CLIENTE);
-
-    if (!esCliente){throw new RuntimeException("No es un rol Valido");}
-
-    return usu;
-        //falta verificar el rol
-    }
-
-    private Vuelos checkExisteVuelo(Long id){
-        return vuelosRepository.findById(id)
-                .orElseThrow(() -> new VueloNotFoundException("Vuelo No Encontrado"));
-    }
-
-    private boolean existeAsientoYEstaLIbre(int numeroAsiento){
-
-        List<Asientos> listaAsientos = asientosRepository.findAll();
-
-        Optional<Asientos> oAsiento = listaAsientos.stream()
-                .filter(a-> a.getNumeroDeAsiento()==numeroAsiento)
-                .filter(a-> a.getVuelos().equals(vuelo))
-                .findFirst();
-
-        asiento = oAsiento.orElseGet(() ->
-                oAsiento.orElseThrow(() ->
-                        new AsientoNotFoundException("Asiento no encontrado")));
-        //log.info(asiento.toString());
-        return asiento.getEstadoAsiento().equals(AsientoEstado.LIBRE);
-    }
-
-    private Reservas checkExisteReserva(Long id){
-        return reservasRepository.findById(id)
-                .orElseThrow(() -> new VueloNotFoundException("Reserva No Encontrado"));
-    }
 
     @Override
     public RespPagosDto pagarReserva(PagosDto pagosDto) {
@@ -173,8 +111,8 @@ public class VuelosServiceImpl implements IVuelosService {
 
 
         Pagos pagoAConfirmar = pagosRepository.findById
-               (reserva.getPagos().getPagosId())
-               .orElseThrow(()->new PagoNotFoundException("Pago No encontrado"));
+                        (reserva.getPagos().getPagosId())
+                .orElseThrow(()->new PagoNotFoundException("Pago No encontrado"));
 
         if (pagoAConfirmar.getEstadoDePago().equals(PagoEstado.PENDIENTE)){
             respPagosDto.setMensaje("Su pago con " + pagosDto.getFormaDePago() + "ha sido aceptada");
@@ -199,5 +137,129 @@ public class VuelosServiceImpl implements IVuelosService {
         return mapper.map(respPagosDto, RespPagosDto.class);
 
     }
+
+
+    ////////// Metodos de Apoyo al Service /////////////////////
+
+
+    private void checkListaVacia(List<Integer> listaAsientos) {
+    if(listaAsientos == null || listaAsientos.isEmpty()){
+        throw new RuntimeException("Lista de Asientos vacia");
+    }
+
+    }
+
+    private void checkDisponibilidadAsientos(List<Asientos> asientos) {
+
+
+        List<Asientos> asientosOcupados = asientos.stream().
+                filter(a ->a.getEstadoAsiento().equals(AsientoEstado.VENDIDO)).toList();
+
+        if(!asientosOcupados.isEmpty()){
+            StringBuilder numAsientosOcupados = new StringBuilder();
+
+            asientosOcupados.forEach(
+                    a -> numAsientosOcupados.append(a.getNumeroDeAsiento()).append(" / "));
+
+            throw new AsientoNotFoundException("Asiento/s no esta libre " + numAsientosOcupados);
+        }
+
+    }
+
+    private List<Asientos> checkExistenAsientosEnBBDD(List<Integer> listaAsientos, Vuelos vueloSelect) {
+        List<Asientos> asientosDeBBDD = asientosRepository.findAll();
+        List<Asientos> listaAsientosOk =new ArrayList<>();
+
+        for(Integer numAsiento: listaAsientos){
+            Optional<Asientos> oAsiento = asientosDeBBDD.stream()
+                    .filter(a-> a.getNumeroDeAsiento()==numAsiento)
+                    .filter(a-> a.getVuelos().equals(vueloSelect))
+                    .findFirst();
+
+            listaAsientosOk.add(oAsiento.orElseGet(() ->
+                    oAsiento.orElseThrow(() ->
+                            new AsientoNotFoundException("Asiento " + numAsiento +  " no encontrado en Vuelo "+vueloSelect.getNumeroVuelo()))));
+
+        }
+
+        return listaAsientosOk;
+    }
+
+    private void checkNumerosDeAsientos(List<Integer> listaAsientos) {
+
+        // Revisa si los numeros de asientos son mayores a cero, o si hay un numero repetido
+        boolean listaOK = listaAsientos.stream()
+             .allMatch(numero -> numero > 0
+             && listaAsientos.stream().filter(n -> n.equals(numero)).count() == 1);
+       if (!listaOK) {
+           throw new RuntimeException("Hay un Error con los numeros de asientos verifique!!");
+       }
+    }
+
+
+    private void generaPagoPendiente(Reservas reserva) {
+        Pagos pago = new Pagos();
+        pago.setEstadoDePago(PagoEstado.PENDIENTE);
+        pago.setReservas(reserva);
+        try {
+            pagosRepository.save(pago);
+        }catch (Exception e){
+            throw new RuntimeException("Error al guardar pagos");
+        }
+
+    }
+
+    private Reservas guardaReserva(int cantAsientos, Vuelos vueloReserva, Usuarios usuarioReserva) {
+        Reservas reserva = new Reservas();
+
+        reserva.setCostoTotal(vueloReserva.getPrecio()* cantAsientos);
+        reserva.setVuelos(vueloReserva);
+        reserva.setUsuarios(usuarioReserva);
+        reserva.setFechaReserva(LocalDateTime.now());
+        try {
+            reservasRepository.save(reserva);
+        }catch (Exception e){
+            throw new RuntimeException("Error al guardar reserva ");
+        }
+        return reserva;
+    }
+
+    private void cambiaEstadoDelAsientoaVendido(List<Asientos> asientosList) {
+
+        for (Asientos a : asientosList) {
+            a.setEstadoAsiento(AsientoEstado.VENDIDO);
+            try {
+                asientosRepository.save(a);
+            } catch (Exception e) {
+                throw new RuntimeException("Error al guardar Asientos");
+            }
+        }
+    }
+
+    private Usuarios checkExisteYRol(Long id){
+    Usuarios usu = usuariosRepository.findById(id)
+            .orElseThrow(() -> new UsuarioNotFoundException("Usuario no Existe !!"));
+
+    boolean esCliente = usu.getRol().equals(UsuarioRol.CLIENTE);
+
+    if (!esCliente){throw new RuntimeException("No es un rol Valido");}
+
+    return usu;
+        //falta verificar el rol
+    }
+
+    private Vuelos checkExisteVuelo(Long id){
+        return vuelosRepository.findById(id)
+                .orElseThrow(() -> new VueloNotFoundException("Vuelo No Encontrado"));
+    }
+
+
+
+    private Reservas checkExisteReserva(Long id){
+        return reservasRepository.findById(id)
+                .orElseThrow(() -> new VueloNotFoundException("Reserva No Encontrado"));
+    }
+
+
 
 }

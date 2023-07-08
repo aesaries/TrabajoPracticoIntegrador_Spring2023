@@ -3,10 +3,11 @@ spring:
     driver-class-name: org.h2.Driver
     username: sa
     password:
-    url: jdbc:h2:mem:nameDB
+    url: jdbc:h2:mem:nameDB;DB_CLOSE_ON_EXIT=FALSE
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
     defer-datasource-initialization: true
+
   sql:
     init:
       data-locations:
