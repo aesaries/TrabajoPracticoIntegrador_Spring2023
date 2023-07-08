@@ -195,40 +195,20 @@ public class VuelosServiceImpl implements IVuelosService {
 
     }
 
+
     @Override
-    public List<AsientosDto> verAsientos() {
-        List<Asientos> asientosEnt = asientosRepository.findAll(); // Obtener asientos del vuelo específico
+    public List<AsientosDto> verAsientos(Long vuelosId) {
 
-        List<AsientosDto> asientosDto = new ArrayList<>();
+        Optional<Asientos> asientoOptional = asientosRepository.findById(vuelosId);
 
-        asientosEnt.forEach(c -> asientosDto.add(mapper.map(c, AsientosDto.class)));
+        List<AsientosDto> respuesta = new ArrayList<>();
 
-        return asientosDto;
+        if (asientoOptional.isPresent()) {
+            Asientos asiento = asientoOptional.get();
+            AsientosDto asientoDto = mapper.map(asiento, AsientosDto.class);
+            respuesta.add(asientoDto);
+        }
+
+        return respuesta;
     }
-
-//    @Override
-//    public List<AsientosDto> verAsientosDisp(@RequestParam Long vuelosId) {
-//        Optional<Asientos> asientosEnt = asientosRepository.findById(vuelosId); // Obtener asientos del vuelo específico
-//
-//        List<AsientosDto> asientosDto = new ArrayList<>();
-//
-//        asientosEnt.forEach(c -> asientosDto.add(mapper.map(c, AsientosDto.class)));
-//
-//        return asientosDto;
-//    }
-
-//    @Override
-//    public List<AsientosDto> verAsientosDisp(@RequestParam Long vuelosId) {
-//        Optional<Asientos> asientosEntOptional = asientosRepository.findById(vuelosId); // Obtener asientos del vuelo específico
-//
-//        List<AsientosDto> asientosDto = new ArrayList<>();
-//
-//        asientosEntOptional.ifPresent(asientosEnt -> {
-//            AsientosDto asientosDto = mapper.map(asientosEnt, AsientosDto.class);
-//            asientosDto.add(asientosDto);
-//        });
-//
-//        return asientosDto;
-//    }
-
 }

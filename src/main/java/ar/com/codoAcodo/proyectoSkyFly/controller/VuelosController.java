@@ -4,6 +4,7 @@ import ar.com.codoAcodo.proyectoSkyFly.dto.request.PagosDto;
 import ar.com.codoAcodo.proyectoSkyFly.dto.request.ReservaDto;
 import ar.com.codoAcodo.proyectoSkyFly.dto.response.RespPagosDto;
 import ar.com.codoAcodo.proyectoSkyFly.dto.response.RespReservaDto;
+import ar.com.codoAcodo.proyectoSkyFly.entity.Vuelos;
 import ar.com.codoAcodo.proyectoSkyFly.service.VuelosServiceImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -41,8 +42,8 @@ public class VuelosController {
     }
 
     @GetMapping("/verAsientos")
-    public ResponseEntity<?> verAsientos(){
-        return new ResponseEntity<>(vuelosService.verAsientos(), HttpStatus.OK);
+    public ResponseEntity<?> verAsientos(@RequestParam Long vuelosId){
+        return new ResponseEntity<>(vuelosService.verAsientos(vuelosId), HttpStatus.OK);
     }
 
 

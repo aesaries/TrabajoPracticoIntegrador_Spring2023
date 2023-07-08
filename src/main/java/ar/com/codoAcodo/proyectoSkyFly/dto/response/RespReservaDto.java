@@ -15,5 +15,4 @@ public class RespReservaDto {
     private Long reservaId;
     private Double montoAPagar;
 
-
 }

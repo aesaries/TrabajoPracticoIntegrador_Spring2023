@@ -17,9 +17,7 @@ public interface IVuelosService {
 
     RespReservaDto realizarReserva(ReservaDto reservaDto);
 
-
     RespPagosDto pagarReserva(PagosDto pagosDto);
 
-
-    List<AsientosDto> verAsientos();
+    List<AsientosDto> verAsientos(Long vuelosId);
 }
