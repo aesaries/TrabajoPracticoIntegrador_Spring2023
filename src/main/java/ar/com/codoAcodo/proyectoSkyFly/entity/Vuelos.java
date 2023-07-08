@@ -26,8 +26,8 @@ public class Vuelos {
     private Double precio;
     private Boolean conexion;
 
-    @OneToOne(mappedBy = "vuelos")
-    private Reservas reservas;//Vuelo tiene como atributo una entidad de tipo Reservas, que va a estar relacionada mediante el mappedBy con una entidad que se llama Vuelos
+    @OneToMany(mappedBy = "vuelos",cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private Set<Reservas> reservas;//Vuelo tiene como atributo una entidad de tipo Reservas, que va a estar relacionada mediante el mappedBy con una entidad que se llama Vuelos
 
     @OneToMany(mappedBy = "vuelos", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<Asientos> asientos;

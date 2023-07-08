@@ -1,7 +1,7 @@
 package ar.com.codoAcodo.proyectoSkyFly.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -24,7 +24,7 @@ public class Reservas {
     @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "usuarios_id", nullable = false)//JoinColumn me genera la FK en la entidad reservas
     private Usuarios usuarios;
-    @OneToOne(cascade = {CascadeType.PERSIST,CascadeType.MERGE})
+    @ManyToOne(cascade = {CascadeType.PERSIST,CascadeType.MERGE})
     @JoinColumn(name = "vuelos_id", referencedColumnName = "vuelosId")//JoinColumn me genera la FK en la entidad reservas
     private Vuelos vuelos;
 
