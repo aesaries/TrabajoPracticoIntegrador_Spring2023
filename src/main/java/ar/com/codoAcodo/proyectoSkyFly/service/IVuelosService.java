@@ -20,4 +20,6 @@ public interface IVuelosService {
     RespPagosDto pagarReserva(PagosDto pagosDto);
 
     List<AsientosDto> verAsientos(Long vuelosId);
+
+    List<AsientosDto> verAsientosLibres(Long vuelosId);
 }

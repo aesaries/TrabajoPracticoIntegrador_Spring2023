@@ -12,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(path ="/vuelos")
+@RequestMapping("/vuelos")
 public class VuelosController {
 
     VuelosServiceImpl vuelosService;
@@ -28,14 +28,12 @@ public class VuelosController {
         return new ResponseEntity<>(vuelosService.buscarVuelos(), HttpStatus.OK);
     }
 
-
-
     @PostMapping("/reservas")
     public ResponseEntity<RespReservaDto> realizarReserva(@RequestBody ReservaDto reservaDto){
         return new ResponseEntity<>(vuelosService.realizarReserva(reservaDto), HttpStatus.OK);
     }
 
-    @PostMapping(value = "/pagarReserva")
+    @PostMapping("/pagarReserva")
     public ResponseEntity<RespPagosDto> pagarReserva(@RequestBody PagosDto pagosDto){
 
         return new ResponseEntity<>(vuelosService.pagarReserva(pagosDto), HttpStatus.OK);
@@ -44,6 +42,11 @@ public class VuelosController {
     @GetMapping("/verAsientos")
     public ResponseEntity<?> verAsientos(@RequestParam Long vuelosId){
         return new ResponseEntity<>(vuelosService.verAsientos(vuelosId), HttpStatus.OK);
+    }
+
+    @GetMapping("/verAsientosLibres")
+    public ResponseEntity<?> verAsientosLibres(@RequestParam Long vuelosId){
+        return new ResponseEntity<>(vuelosService.verAsientosLibres(vuelosId), HttpStatus.OK);
     }
 
 

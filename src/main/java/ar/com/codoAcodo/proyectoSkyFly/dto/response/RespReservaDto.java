@@ -1,6 +1,7 @@
 package ar.com.codoAcodo.proyectoSkyFly.dto.response;
 
 import ar.com.codoAcodo.proyectoSkyFly.dto.request.ReservaDto;
+import ar.com.codoAcodo.proyectoSkyFly.entity.Vuelos;
 import lombok.*;
 
 @AllArgsConstructor
@@ -14,5 +15,4 @@ public class RespReservaDto {
     private String fechaReserva;
     private Long reservaId;
     private Double montoAPagar;
-
 }

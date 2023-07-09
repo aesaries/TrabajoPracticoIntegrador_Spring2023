@@ -19,25 +19,20 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class VuelosServiceImpl implements IVuelosService {
 
-
+    @Autowired
     IVuelosRepository vuelosRepository;
-
-    public VuelosServiceImpl(IVuelosRepository vuelosRepository) {
-        this.vuelosRepository = vuelosRepository;
-    }
-
     @Autowired
     IReservasRepository reservasRepository;
     @Autowired
@@ -51,10 +46,7 @@ public class VuelosServiceImpl implements IVuelosService {
     Asientos asiento;
     Usuarios usuario;
     Vuelos vuelo;
-
     Reservas reserva;
-
-
     ModelMapper mapper = new ModelMapper();//creamos un ModelMapper(debemos tener la dependencia en el pom).La clase ModelMapper nos permite transformar un objeto relacional en un objeto java
 
     @Override
@@ -90,8 +82,13 @@ public class VuelosServiceImpl implements IVuelosService {
             //Se genera un registro en PAGOS con el estado "Pendiente" d
             generaPagoPendiente(reserva);
 
+            // Obtener la hora actual formateada
+            LocalDateTime fechaHoraActual = LocalDateTime.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+            String fechaHoraFormateada = fechaHoraActual.format(formatter);
+
             return new RespReservaDto("La reserva se realizo con exito",
-                    reservaDto,LocalDateTime.now().toString(),
+                    reservaDto, fechaHoraFormateada,
                     reserva.getReservasId(),
                     reserva.getCostoTotal());
         }else{
@@ -185,30 +182,52 @@ public class VuelosServiceImpl implements IVuelosService {
 
             pagoAConfirmar.setEstadoDePago(PagoEstado.CONFIRMADO);
             pagosRepository.save(pagoAConfirmar);
-
         }
         else{
 
             throw new PagoNotFoundException("Ya esta Pagado !!! no insista");
         }
         return mapper.map(respPagosDto, RespPagosDto.class);
-
     }
-
 
     @Override
     public List<AsientosDto> verAsientos(Long vuelosId) {
+        vuelo = checkExisteVuelo(vuelosId);
 
-        Optional<Asientos> asientoOptional = asientosRepository.findById(vuelosId);
+        List<Asientos> asientos = asientosRepository.findAll();
 
-        List<AsientosDto> respuesta = new ArrayList<>();
+        // Filtra los asientos en base a la ID pasada como parámetro
+        List<AsientosDto> asientosDto = asientos.stream()
+                .filter(asiento -> asiento.getVuelos().getVuelosId().equals(vuelosId))
+                .map(asiento -> {
+                    AsientosDto asientoDto = new AsientosDto();
+                    asientoDto.setVuelosId(asiento.getVuelos().getVuelosId());
+                    asientoDto.setNumeroDeAsiento(asiento.getNumeroDeAsiento());
+                    asientoDto.setDescripcion(asiento.getDescripcion());
+                    asientoDto.setTipoDeAsiento(asiento.getTipoDeAsiento());
+                    asientoDto.setEstadoAsiento(asiento.getEstadoAsiento());
+                    return asientoDto;
+                })
+                .collect(Collectors.toList());
+        return asientosDto;
+    }
 
-        if (asientoOptional.isPresent()) {
-            Asientos asiento = asientoOptional.get();
-            AsientosDto asientoDto = mapper.map(asiento, AsientosDto.class);
-            respuesta.add(asientoDto);
+    @Override
+    public List<AsientosDto> verAsientosLibres(Long vuelosId) {
+
+        vuelo = checkExisteVuelo(vuelosId);
+
+        List<Asientos> asientosEnt = asientosRepository.findAll();
+        List<AsientosDto> asiDto = new ArrayList<>();
+
+        //  asientosEnt.forEach(c-> asiDto.add(mapper.map(c,AsientosDto.class)));
+        asientosEnt.forEach(c -> {if (c.getVuelos().getVuelosId() == vuelosId && c.getEstadoAsiento() == AsientoEstado.LIBRE) {
+            asiDto.add(mapper.map(c, AsientosDto.class));
         }
 
-        return respuesta;
+        });
+        return asiDto;
     }
+
+
 }
