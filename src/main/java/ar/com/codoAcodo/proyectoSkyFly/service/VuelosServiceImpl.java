@@ -1,5 +1,6 @@
 package ar.com.codoAcodo.proyectoSkyFly.service;
 
+import ar.com.codoAcodo.proyectoSkyFly.dto.request.AsientosDto;
 import ar.com.codoAcodo.proyectoSkyFly.dto.request.PagosDto;
 import ar.com.codoAcodo.proyectoSkyFly.dto.request.ReservaDto;
 import ar.com.codoAcodo.proyectoSkyFly.dto.request.VuelosDto;
@@ -23,18 +24,14 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class VuelosServiceImpl implements IVuelosService {
 
-
+    @Autowired
     IVuelosRepository vuelosRepository;
-
-    public VuelosServiceImpl(IVuelosRepository vuelosRepository) {
-        this.vuelosRepository = vuelosRepository;
-    }
-
     @Autowired
     IReservasRepository reservasRepository;
     @Autowired
@@ -197,6 +194,7 @@ public class VuelosServiceImpl implements IVuelosService {
             throw new RuntimeException("Error al guardar reserva ");
         }
         return reserva;
+
     }
 
     private void cambiaEstadoDelAsientoaVendido(List<Asientos> asientosList) {
@@ -264,4 +262,43 @@ public class VuelosServiceImpl implements IVuelosService {
         return respPagosDto;
     }
 
+
+    @Override
+    public List<AsientosDto> verAsientos(Long vuelosId) {
+        vuelo = checkExisteVuelo(vuelosId);
+
+        List<Asientos> asientos = asientosRepository.findAll();
+
+        // Filtra los asientos en base a la ID pasada como parámetro
+        List<AsientosDto> asientosDto = asientos.stream()
+                .filter(asiento -> asiento.getVuelos().getVuelosId().equals(vuelosId))
+                .map(asiento -> {
+                    AsientosDto asientoDto = new AsientosDto();
+                    asientoDto.setVuelosId(asiento.getVuelos().getVuelosId());
+                    asientoDto.setNumeroDeAsiento(asiento.getNumeroDeAsiento());
+                    asientoDto.setDescripcion(asiento.getDescripcion());
+                    asientoDto.setTipoDeAsiento(asiento.getTipoDeAsiento());
+                    asientoDto.setEstadoAsiento(asiento.getEstadoAsiento());
+                    return asientoDto;
+                })
+                .collect(Collectors.toList());
+        return asientosDto;
+    }
+
+    @Override
+    public List<AsientosDto> verAsientosLibres(Long vuelosId) {
+
+        vuelo = checkExisteVuelo(vuelosId);
+
+        List<Asientos> asientosEnt = asientosRepository.findAll();
+        List<AsientosDto> asiDto = new ArrayList<>();
+
+        //  asientosEnt.forEach(c-> asiDto.add(mapper.map(c,AsientosDto.class)));
+        asientosEnt.forEach(c -> {if (c.getVuelos().getVuelosId() == vuelosId && c.getEstadoAsiento() == AsientoEstado.LIBRE) {
+            asiDto.add(mapper.map(c, AsientosDto.class));
+        }
+
+        });
+        return asiDto;
+    }
 }

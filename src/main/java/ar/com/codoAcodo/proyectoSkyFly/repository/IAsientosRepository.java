@@ -10,9 +10,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface IAsientosRepository extends JpaRepository<Asientos,Long> {
- List<Asientos> findByNumeroDeAsiento(int num);
+// List<Asientos> findByNumeroDeAsiento(int num);
 
- Optional<Asientos> findByVuelosAndNumeroDeAsiento(Vuelos v, int na);
+// Optional<Asientos> findByVuelosAndNumeroDeAsiento(Vuelos v, int na);
 
 
 }

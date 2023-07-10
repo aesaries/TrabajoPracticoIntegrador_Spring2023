@@ -1,14 +1,14 @@
 package ar.com.codoAcodo.proyectoSkyFly.dto.response;
 
 import ar.com.codoAcodo.proyectoSkyFly.dto.request.ReservaDto;
-import ar.com.codoAcodo.proyectoSkyFly.dto.request.VuelosDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
 public class RespReservaDto {
 
     private String mensaje;

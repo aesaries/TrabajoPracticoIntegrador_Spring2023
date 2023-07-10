@@ -2,12 +2,14 @@ package ar.com.codoAcodo.proyectoSkyFly.entity;
 
 import ar.com.codoAcodo.proyectoSkyFly.enums.PagoEstado;
 import jakarta.persistence.*;
-import lombok.Data;
+
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Date;
-@Getter @Setter
+
+@Getter
+@Setter
 @Entity
 @Table(name = "pagos")
 public class Pagos {

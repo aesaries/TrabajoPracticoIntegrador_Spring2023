@@ -18,7 +18,7 @@ public class Asientos {
     private Long asientosId;
 
     @Column(name = "numero_asiento")
-    private int numeroDeAsiento;
+    private Long numeroDeAsiento;
 
     @Enumerated(value = EnumType.ORDINAL)
     private AsientoEstado estadoAsiento;
