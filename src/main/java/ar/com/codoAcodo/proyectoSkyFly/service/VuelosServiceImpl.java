@@ -93,10 +93,12 @@ public class VuelosServiceImpl implements IVuelosService {
         //Se genera un registro en PAGOS con el estado "Pendiente" d
         generaPagoPendiente(reserva);
 
-         return new RespReservaDto("la reserva se realizo con exito",
-                    reservaDto,LocalDateTime.now().toString(),
-                    reserva.getReservasId(),
-                    reserva.getCostoTotal());
+         return new RespReservaDto(reserva.getReservasId(),
+                    "la reserva se realizo con exito",
+                    LocalDateTime.now().toString(),
+                    vuelo.getPrecio(),
+                    reserva.getCostoTotal(),
+                    reservaDto);
 
     }
 
