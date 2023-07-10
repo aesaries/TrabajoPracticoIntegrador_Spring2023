@@ -10,13 +10,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 public class RespReservaDto {
-
+    private Long reservaId;
     private String mensaje;
-    private ReservaDto datos_de_reserva;
+
     private String fechaReserva;
 
-    private Long reservaId;
+    private Double precioUnitario;
     private Double montoAPagar;
+    private ReservaDto datos_de_reserva;
 
 
     public RespReservaDto(String mensaje) {
