@@ -1,21 +1,14 @@
 package ar.com.codoAcodo.proyectoSkyFly.service;
-
-import ar.com.codoAcodo.proyectoSkyFly.ProyectoSkyFlyApplication;
-import ar.com.codoAcodo.proyectoSkyFly.dto.request.ReservaDto;
 import ar.com.codoAcodo.proyectoSkyFly.dto.request.VuelosDto;
-import ar.com.codoAcodo.proyectoSkyFly.dto.response.RespReservaDto;
 import ar.com.codoAcodo.proyectoSkyFly.repository.IReservasRepository;
 import ar.com.codoAcodo.proyectoSkyFly.repository.IVuelosRepository;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 //@SpringBootTest(classes = ProyectoSkyFlyApplication.class)
@@ -50,23 +43,17 @@ public class VuelosServiceTest {
     }
 
 //    @Test
-//    @DisplayName("Camino Feliz realizar reserva...")
-//    void realizarReservaOkTest(){
-//        //arrange
-//        ReservaDto reservaDto = new ReservaDto();
-//        reservaDto.setUsuarioId(1L); // Asignar un valor válido para el ID de usuario
-//        reservaDto.setVueloId(1L); // Asignar un valor válido para el ID de vuelo
-//        reservaDto.setNumeroDeAsiento(20); // Asignar un número de asiento válido
-//        RespReservaDto expected = new RespReservaDto("La reserva se realizo con exito",
-//                reservaDto,LocalDateTime.now().toString(),
-//                reserva.getReservasId(),
-//                reserva.getCostoTotal());
+//    @DisplayName("Camino Feliz ver asientos libres...")
+//    void verAsientosLibresOkTest(){
 //
-//        //act
-//        RespReservaDto act = vuelosService.realizarReserva(reservaDto);
+//        //ARRANGE
+//        List<AsientosDto> expected = new ArrayList<>();
+//        expected.add(new ));;
 //
-//        //assert
-//        assertEquals(expected,act);
+//        //ACT
+//        List<AsientosDto> result = vuelosService.verAsientosLibres(3L);
+//        //ASSERT
+//        assertEquals(expected,result);
 //    }
 
 }

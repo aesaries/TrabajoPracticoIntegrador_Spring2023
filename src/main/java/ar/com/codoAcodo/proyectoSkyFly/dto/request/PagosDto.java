@@ -10,4 +10,6 @@ public class PagosDto {
     private String formaDePago;
 
 
+    public PagosDto(long l, String transferencia) {
+    }
 }

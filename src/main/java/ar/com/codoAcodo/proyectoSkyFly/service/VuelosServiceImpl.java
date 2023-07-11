@@ -90,7 +90,7 @@ public class VuelosServiceImpl implements IVuelosService {
         generaPagoPendiente(reserva);
 
          return new RespReservaDto(reserva.getReservasId(),
-                 "la reserva se realizo con exito", LocalDateTime.now().toString(),
+                 "La reserva se realizo con exito", LocalDateTime.now().toString(),
                  vuelo.getPrecio(), reserva.getCostoTotal(),reservaDto);
 
     }
