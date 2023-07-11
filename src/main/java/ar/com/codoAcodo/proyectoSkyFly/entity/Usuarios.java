@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 @AllArgsConstructor
@@ -28,6 +29,6 @@ public class Usuarios {
     private UsuarioRol rol;
 
     @OneToMany(mappedBy = "usuarios", cascade = CascadeType.ALL, fetch = FetchType.EAGER)//el cascade se encarga de definir que operaciones realizadas sobre un objeto voy a propagar sobre un objeto relacionado, en este caso items.
-    private Set<Reservas> reservas;
+    private List<Reservas> reservas;
 
 }

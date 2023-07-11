@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 @NoArgsConstructor
@@ -30,7 +31,7 @@ public class Vuelos {
     private Set<Reservas> reservas;//Vuelo tiene como atributo una entidad de tipo Reservas, que va a estar relacionada mediante el mappedBy con una entidad que se llama Vuelos
 
     @OneToMany(mappedBy = "vuelos", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private Set<Asientos> asientos;
+    private List<Asientos> asientos;
 
 
 }
