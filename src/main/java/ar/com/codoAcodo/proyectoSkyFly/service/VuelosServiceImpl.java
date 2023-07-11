@@ -8,6 +8,7 @@ import ar.com.codoAcodo.proyectoSkyFly.dto.response.RespPagosDto;
 import ar.com.codoAcodo.proyectoSkyFly.dto.response.RespReservaDto;
 import ar.com.codoAcodo.proyectoSkyFly.entity.*;
 import ar.com.codoAcodo.proyectoSkyFly.enums.AsientoEstado;
+import ar.com.codoAcodo.proyectoSkyFly.enums.FormaDePago;
 import ar.com.codoAcodo.proyectoSkyFly.enums.PagoEstado;
 import ar.com.codoAcodo.proyectoSkyFly.enums.UsuarioRol;
 import ar.com.codoAcodo.proyectoSkyFly.exception.AsientoNotFoundException;
@@ -21,10 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -91,10 +89,9 @@ public class VuelosServiceImpl implements IVuelosService {
         //Se genera un registro en PAGOS con el estado "Pendiente" d
         generaPagoPendiente(reserva);
 
-         return new RespReservaDto("la reserva se realizo con exito",
-                    reservaDto,LocalDateTime.now().toString(),
-                    reserva.getReservasId(),
-                    reserva.getCostoTotal());
+         return new RespReservaDto(reserva.getReservasId(),
+                 "la reserva se realizo con exito", LocalDateTime.now().toString(),
+                 vuelo.getPrecio(), reserva.getCostoTotal(),reservaDto);
 
     }
 
@@ -103,12 +100,16 @@ public class VuelosServiceImpl implements IVuelosService {
 
     @Override
     public RespPagosDto pagarReserva(PagosDto pagosDto) {
+
+        checkFormasDePago(pagosDto.getFormaDePago());
+
         RespPagosDto respPagosDto = confeccionDeRespPagoDto(pagosDto);
 
 
         return mapper.map(respPagosDto, RespPagosDto.class);
 
     }
+
 
 
 
@@ -232,6 +233,16 @@ public class VuelosServiceImpl implements IVuelosService {
     private Reservas checkExisteReserva(Long id){
         return reservasRepository.findById(id)
                 .orElseThrow(() -> new VueloNotFoundException("Reserva No Encontrado"));
+    }
+
+
+
+    private void checkFormasDePago(String formaDePago) {
+       boolean esFormaDePagoPermitida = Arrays.stream(FormaDePago.values())
+               .anyMatch(valor -> valor.name()
+               .equals(formaDePago.toUpperCase()));
+       if(!esFormaDePagoPermitida) throw new RuntimeException("Paga bien puee, Forma de pago no Admitida");
+
     }
 
     private RespPagosDto confeccionDeRespPagoDto(PagosDto pagosDto) {
