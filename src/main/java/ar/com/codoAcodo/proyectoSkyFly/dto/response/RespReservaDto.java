@@ -1,9 +1,7 @@
 package ar.com.codoAcodo.proyectoSkyFly.dto.response;
 
 import ar.com.codoAcodo.proyectoSkyFly.dto.request.ReservaDto;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @AllArgsConstructor
 @NoArgsConstructor

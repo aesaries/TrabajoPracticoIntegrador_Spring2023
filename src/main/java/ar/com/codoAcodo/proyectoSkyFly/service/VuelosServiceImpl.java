@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -144,7 +145,7 @@ public class VuelosServiceImpl implements IVuelosService {
 
         for(Integer numAsiento: listaAsientos){
             Optional<Asientos> oAsiento = asientosDeBBDD.stream()
-                    .filter(a-> a.getNumeroDeAsiento()==numAsiento)
+                    .filter(a-> a.getNumeroDeAsiento() == numAsiento.longValue())
                     .filter(a-> a.getVuelos().equals(vueloSelect))
                     .findFirst();
 
@@ -265,12 +266,14 @@ public class VuelosServiceImpl implements IVuelosService {
 
     @Override
     public List<AsientosDto> verAsientos(Long vuelosId) {
+
         vuelo = checkExisteVuelo(vuelosId);
 
         List<Asientos> asientos = asientosRepository.findAll();
 
-        // Filtra los asientos en base a la ID pasada como parámetro
-        List<AsientosDto> asientosDto = asientos.stream()
+         // Filtra los asientos en base a la ID pasada como parámetro
+
+        return asientos.stream()
                 .filter(asiento -> asiento.getVuelos().getVuelosId().equals(vuelosId))
                 .map(asiento -> {
                     AsientosDto asientoDto = new AsientosDto();
@@ -282,7 +285,6 @@ public class VuelosServiceImpl implements IVuelosService {
                     return asientoDto;
                 })
                 .collect(Collectors.toList());
-        return asientosDto;
     }
 
     @Override
@@ -294,7 +296,7 @@ public class VuelosServiceImpl implements IVuelosService {
         List<AsientosDto> asiDto = new ArrayList<>();
 
         //  asientosEnt.forEach(c-> asiDto.add(mapper.map(c,AsientosDto.class)));
-        asientosEnt.forEach(c -> {if (c.getVuelos().getVuelosId() == vuelosId && c.getEstadoAsiento() == AsientoEstado.LIBRE) {
+        asientosEnt.forEach(c -> {if (Objects.equals(c.getVuelos().getVuelosId(), vuelosId) && c.getEstadoAsiento().equals(AsientoEstado.LIBRE)) {
             asiDto.add(mapper.map(c, AsientosDto.class));
         }
 

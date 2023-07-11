@@ -5,9 +5,7 @@ import ar.com.codoAcodo.proyectoSkyFly.dto.request.ReservaDto;
 import ar.com.codoAcodo.proyectoSkyFly.dto.response.RespPagosDto;
 import ar.com.codoAcodo.proyectoSkyFly.dto.response.RespReservaDto;
 import ar.com.codoAcodo.proyectoSkyFly.service.VuelosServiceImpl;
-import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

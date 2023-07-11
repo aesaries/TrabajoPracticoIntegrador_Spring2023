@@ -5,8 +5,7 @@ import ar.com.codoAcodo.proyectoSkyFly.enums.AsientoEstado;
 import ar.com.codoAcodo.proyectoSkyFly.enums.AsientoTipo;
 import lombok.*;
 
-import java.util.List;
-import java.util.stream.Collector;
+
 
 
 @NoArgsConstructor
